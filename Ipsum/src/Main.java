@@ -1,4 +1,5 @@
 import java.awt.*;
+
 import javax.swing.*;
 
 public class Main {
@@ -15,6 +16,10 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
+        
+        //Make a PRM
+        PRM prm = new PRM();
+        
         //Display the window.
         frame.setPreferredSize(new Dimension(1000,600));
         frame.pack();
@@ -30,4 +35,8 @@ public class Main {
             }
         });
     }
+
+	public static Frame getFrame() {
+		return frame;
+	}
 }

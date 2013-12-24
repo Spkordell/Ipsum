@@ -20,22 +20,18 @@ public class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridLayout(1, 1));
 
-        
+/*        
         //Make a PRM
         PRM prm = new PRM();
-        
         //Make a global input
         GI gi1 = new GI(-1);
         GI gi2 = new GI(-1);
-        
         //Make a global output
         GO go = new GO();
-        
         //connect the PRM to the axon (for now, we will do this manually, but future implementations would likely have the PRM handle it on it's own as it feels the need to)
         prm.connectDendriteTo(gi1);
         prm.connectDendriteTo(gi2);
-        go.connectDendriteTo(prm);
-        
+        go.connectDendriteTo(prm);        
         for (int i = 0; i < 10; i++) {
 	        gi1.step();
 	        gi2.step();
@@ -43,9 +39,8 @@ public class Main {
 	        go.step();
         }
         prm.plotDendrites();
-
-        //Make a clusterTest
-        //ClusterTest clusterTest = new ClusterTest();
+        
+        */
         
         Network network = new Network();
         

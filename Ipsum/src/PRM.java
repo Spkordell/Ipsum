@@ -1,5 +1,8 @@
+import java.awt.Color;
+import java.awt.Paint;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import jsat.DataSet;
 import jsat.SimpleDataSet;
@@ -25,20 +28,25 @@ public class PRM implements Node {
 	private LinkedList<Node> dendrites;
 	private LinkedList<DataPoint> frames;
 	private double axon;
+	private Network network;
 	
 	DBSCAN dbscan;
 	
-	public PRM() {
-		dendrites = new LinkedList<Node>();
-		frames = new LinkedList<DataPoint>();
-		dbscan = new DBSCAN();
-		axon = -1;
+	public PRM(Network network) {
+		this.network = network;
+		this.network.getGraph().addVertex(this);
+		this.dendrites = new LinkedList<Node>();
+		this.frames = new LinkedList<DataPoint>();
+		this.dbscan = new DBSCAN();
+		this.axon = -1;
 	}
 
 	@Override
 	public void step() {
 		LinkedList<Double> dendriteValues = new LinkedList<Double>();	
 		DataSet data;
+		
+		//TODO: decide how long to keep frames and begin throwing away old ones after a certain point
 		
 		for(Node d: dendrites) {
 			dendriteValues.add(d.getAxon());
@@ -89,6 +97,9 @@ public class PRM implements Node {
 	public void connectDendriteTo(Node node) {
 		if (node.isReadyToConnect()) {
 			this.dendrites.add(node);
+			
+			Random random = new Random();
+			this.network.getGraph().addEdge(random.nextInt(), node, this);
 		}
 	}
 
@@ -96,5 +107,10 @@ public class PRM implements Node {
 		DataSet data = new SimpleDataSet(frames);
 		ScatterPlot plot = new ScatterPlot(data.getNumericColumn(0),data.getNumericColumn(1));
 		Main.add(plot);
+	}
+
+	@Override
+	public Paint getColor() {
+		return Color.BLUE;
 	}
 }

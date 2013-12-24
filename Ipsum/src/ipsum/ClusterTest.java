@@ -1,5 +1,7 @@
+package ipsum;
 import java.util.LinkedList;
 import java.util.List;
+
 import jsat.DataSet;
 import jsat.SimpleDataSet;
 import jsat.classifiers.CategoricalData;

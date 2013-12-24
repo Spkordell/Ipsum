@@ -1,3 +1,4 @@
+package ipsum;
 import java.awt.*;
 import java.util.LinkedList;
 
@@ -43,6 +44,7 @@ public class Main {
         */
         
         Network network = new Network();
+        network.run();
         
         //Display the window.
         frame.setPreferredSize(new Dimension(1000,600));

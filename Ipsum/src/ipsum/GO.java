@@ -1,3 +1,5 @@
+package ipsum;
+
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.Random;

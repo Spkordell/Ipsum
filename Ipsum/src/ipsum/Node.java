@@ -1,3 +1,4 @@
+package ipsum;
 import java.awt.Paint;
 
 

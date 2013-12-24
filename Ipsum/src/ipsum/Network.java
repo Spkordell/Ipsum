@@ -1,9 +1,7 @@
-import java.awt.BasicStroke;
-import java.awt.Color;
+package ipsum;
+
 import java.awt.Dimension;
 import java.awt.Paint;
-import java.awt.Stroke;
-
 import org.apache.commons.collections15.Transformer;
 
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
@@ -11,8 +9,6 @@ import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 
 public class Network {
 	// Graph<V, E> where V is the type of the vertices and E is the type of the edges
@@ -55,27 +51,17 @@ public class Network {
             	return i.getColor();
             }
         };  
-        
-        // Set up a new stroke Transformer for the edges
-        float dash[] = {10.0f};
-        final Stroke edgeStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
-             BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f);
-        Transformer<Integer, Stroke> edgeStrokeTransformer = new Transformer<Integer, Stroke>() {
-            public Stroke transform(Integer s) {
-                return edgeStroke;
-            }
-        };
-        
-        vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);
-        //vv.getRenderContext().setEdgeStrokeTransformer(edgeStrokeTransformer);
-        //vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Node>());
-        //vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller<Integer>());
-        //vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);        
+               
+        vv.getRenderContext().setVertexFillPaintTransformer(vertexPaint);      
 	    
 	    Main.add(vv); 
 	}
 	
-	public Graph getGraph() {
+	public Graph<Node, Integer> getGraph() {
 		return this.g;
+	}
+
+	public void run() {
+		// TODO Auto-generated method stub	
 	}
 }

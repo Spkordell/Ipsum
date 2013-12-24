@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="M:/Projects/Ipsum/repo/elki.jar"/>
 	<classpathentry kind="lib" path="M:/Projects/Ipsum/repo/JSAT_r754.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/M:/Projects/Ipsum/repo/JSAT_javadoc_r754.zip!/javadoc"/>

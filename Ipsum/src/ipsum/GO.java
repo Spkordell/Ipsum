@@ -3,17 +3,17 @@ package ipsum;
 import java.awt.Color;
 import java.awt.Paint;
 
-public class GO implements Node{
+public class GO implements INode{
 	private double axon;
-	private Node dendrite;
+	private INode dendrite;
 	private Network network;
 	
 	public GO(Network network) {
 		this.network = network;
 		this.network.getGraph().addVertex(this);
 		
-		Node node = this;
-		while(node instanceof GI || node instanceof GO) {
+		INode node = this;
+		while(node instanceof GI || node instanceof GO || this.network.alreadyAttachedToGO(node)) {
 			node = this.network.getRandomNode();
 		}
 		connectDendriteTo(node);
@@ -35,7 +35,7 @@ public class GO implements Node{
 		return false; //You can't connect a dendrite to a global output
 	}
 
-	public void connectDendriteTo(Node node) {
+	public void connectDendriteTo(INode node) {
 		this.dendrite = node;
 		this.network.getGraph().addEdge(this.network.getEdgeCount(), node, this);
 		this.network.incrementEdgeCount();
@@ -44,6 +44,11 @@ public class GO implements Node{
 	@Override
 	public Paint getColor() {
 		return Color.RED;
+	}
+	
+	@Override
+	public boolean hasDendriteConnectedTo(INode node) {
+		return (dendrite == node);
 	}
 
 }

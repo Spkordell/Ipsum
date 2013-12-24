@@ -3,7 +3,7 @@ import java.awt.Color;
 import java.awt.Paint;
 
 
-public class GI implements Node {
+public class GI implements INode {
 	private double axon;
 	private Network network;
 
@@ -32,6 +32,11 @@ public class GI implements Node {
 	@Override
 	public Paint getColor() {
 		return Color.GREEN;
+	}
+	
+	@Override
+	public boolean hasDendriteConnectedTo(INode node) {
+		return false;
 	}
 
 }

@@ -1,13 +1,27 @@
 package ipsum;
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 
 import javax.swing.*;
 
+
+/* TODO list
+ * 
+ * ensure no PRM can attach to the same set of nodes
+ * Need to allow GIs to take a function
+ * 
+ * 
+ */
+
+
 public class Main {
 	private static JFrame frame;
+	private static JPanel mainPanel;
 	private static LinkedList<JComponent> cList;
-
+	private static JLabel stepsPerSecondLabel;
+	private static double stepsPerSecond;
+	
     /**
      * Create the GUI and show it.  For thread safety,
      * this method should be invoked from the
@@ -15,43 +29,34 @@ public class Main {
      */
     private static void createAndShowGUI() {
     	cList = new LinkedList<JComponent>();
+    	mainPanel = new JPanel(new GridLayout(1, 1));
     	
         //Create and set up the window.
         frame = new JFrame("Ipsum");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(1, 1));
-
-/*        
-        //Make a PRM
-        PRM prm = new PRM();
-        //Make a global input
-        GI gi1 = new GI(-1);
-        GI gi2 = new GI(-1);
-        //Make a global output
-        GO go = new GO();
-        //connect the PRM to the axon (for now, we will do this manually, but future implementations would likely have the PRM handle it on it's own as it feels the need to)
-        prm.connectDendriteTo(gi1);
-        prm.connectDendriteTo(gi2);
-        go.connectDendriteTo(prm);        
-        for (int i = 0; i < 10; i++) {
-	        gi1.step();
-	        gi2.step();
-	        prm.step();
-	        go.step();
-        }
-        prm.plotDendrites();
+        frame.setLayout(new BorderLayout());
+        frame.add(mainPanel,BorderLayout.CENTER);
+      
+        stepsPerSecondLabel = new JLabel("sps: "+stepsPerSecond);
+        stepsPerSecondLabel.setSize(new Dimension(100,10));
         
-        */
+        frame.add(stepsPerSecondLabel,BorderLayout.SOUTH);
         
         Network network = new Network();
-        network.buildNetwork(20,50,10);
+        try {
+			network.buildNetwork(2,2,2);
+		} catch (notEnoughPRMsException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
         network.drawGraph();
-        network.step(100);
-        
+     
         //Display the window.
         frame.setPreferredSize(new Dimension(700,700));
         frame.pack();
         frame.setVisible(true);
+
+        (new Thread(network)).start();
     }
  
     public static void main(String[] args) {
@@ -64,15 +69,23 @@ public class Main {
         });
     }
 
-	public static Frame getFrame() {
-		return frame;
+	public static JPanel getMainPanel() {
+		return mainPanel;
 	}
 	
 	public static void add(JComponent component) {
 		cList.add(component);
-		getFrame().setLayout(new GridLayout(cList.size(), 1));
+		getMainPanel().setLayout(new GridLayout(cList.size(), 1));
 		for(JComponent comp : cList) {
-			getFrame().add(comp);
+			getMainPanel().add(comp);
+		}
+	}
+	
+	public static void updateStepsPerSecond(double sps) {
+		stepsPerSecond = sps;
+		try {
+			stepsPerSecondLabel.setText("sps: "+Double.parseDouble(new DecimalFormat("#.#").format(stepsPerSecond)));
+		} catch(NumberFormatException e) {
 		}
 	}
 }

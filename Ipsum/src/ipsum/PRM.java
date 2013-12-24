@@ -22,9 +22,9 @@ import jsat.linear.Vec;
  * MDS or tensors are not needed with this implementation.
  */
 
-public class PRM implements Node {
+public class PRM implements INode {
 	private static final int minSteps = 4;
-	private LinkedList<Node> dendrites;
+	private LinkedList<INode> dendrites;
 	private LinkedList<DataPoint> frames;
 	private double axon;
 	private Network network;
@@ -34,7 +34,7 @@ public class PRM implements Node {
 	public PRM(Network network) {
 		this.network = network;
 		this.network.getGraph().addVertex(this);
-		this.dendrites = new LinkedList<Node>();
+		this.dendrites = new LinkedList<INode>();
 		this.frames = new LinkedList<DataPoint>();
 		this.dbscan = new DBSCAN();
 		this.axon = -1;
@@ -47,7 +47,7 @@ public class PRM implements Node {
 		
 		//TODO: decide how long to keep frames and begin throwing away old ones after a certain point
 		
-		for(Node d: dendrites) {
+		for(INode d: dendrites) {
 			dendriteValues.add(d.getAxon());
 		}
 		Vec frame = new DenseVector(dendriteValues);
@@ -84,8 +84,8 @@ public class PRM implements Node {
 	}
 
 	private void decideMakeNewConnection() {
-		if (dendrites.size() < 2) { //FIXME: Should be < 1, changed for testing
-			Node node = this;
+		if (dendrites.size() < 1) {
+			INode node = this;
 			while(node == this || node.isReadyToConnect() == false) {
 				node = this.network.getRandomNode();
 			}
@@ -104,7 +104,7 @@ public class PRM implements Node {
 		return (frames.size() >= minSteps);
 	}
 	
-	public void connectDendriteTo(Node node) {
+	public void connectDendriteTo(INode node) {
 		this.dendrites.add(node);
 		this.network.getGraph().addEdge(this.network.getEdgeCount(), node, this);
 		this.network.incrementEdgeCount();
@@ -122,5 +122,15 @@ public class PRM implements Node {
 	@Override
 	public Paint getColor() {
 		return Color.BLUE;
+	}
+
+	@Override
+	public boolean hasDendriteConnectedTo(INode node) {
+		for (INode n: dendrites) {
+			if(n == node) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

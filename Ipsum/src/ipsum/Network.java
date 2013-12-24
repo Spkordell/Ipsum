@@ -13,40 +13,23 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
-public class Network {
-	LinkedList<Node> nodes;
+public class Network implements Runnable {
+	LinkedList<INode> nodes;
 	
 	// Graph<V, E> where V is the type of the vertices and E is the type of the edges
-    private Graph<Node, Integer> g;
+    private Graph<INode, Integer> g;
     private int edgeCount = 0;
 	public Network() {		
-        g = new DirectedSparseGraph<Node, Integer>();
-		nodes = new LinkedList<Node>();
-        /*
-	    //Make a PRM
-        PRM prm = new PRM(this);
-        //Make a global input
-        GI gi1 = new GI(this,-1);
-        GI gi2 = new GI(this,-1);
-        //Make a global output
-        GO go = new GO(this);
-        //connect the PRM to the axon (for now, we will do this manually, but future implementations would likely have the PRM handle it on it's own as it feels the need to)
-        prm.connectDendriteTo(gi1);
-        prm.connectDendriteTo(gi2);
-        go.connectDendriteTo(prm); 
-        
-        for (int i = 0; i < 10; i++) {
-	        gi1.step();
-	        gi2.step();
-	        prm.step();
-	        go.step();
-        }
-        prm.plotDendrites();  
-		   
-		   */		
+        g = new DirectedSparseGraph<INode, Integer>();
+		nodes = new LinkedList<INode>();	
 	}
 	
-	public void buildNetwork(int GICount, int PRMCount, int GOCount) {
+	public void buildNetwork(int GICount, int PRMCount, int GOCount) throws notEnoughPRMsException {
+		if (GOCount > PRMCount) {
+			throw(new notEnoughPRMsException());			
+		}
+		
+		
 		for (int i = 0; i < GICount; i++) {
 			nodes.add(new GI(this,-1));
 		}
@@ -60,15 +43,15 @@ public class Network {
 	
 	public void drawGraph() {
 	    // The Layout<V, E> is parameterized by the vertex and edge types
-	    Layout<Node, Integer> layout = new SpringLayout<Node, Integer>(g);
+	    Layout<INode, Integer> layout = new SpringLayout<INode, Integer>(g);
 	    layout.setSize(new Dimension(600,600)); // sets the initial size of the layout space
 	    // The BasicVisualizationServer<V,E> is parameterized by the vertex and edge types
-	    BasicVisualizationServer<Node,Integer> vv = new BasicVisualizationServer<Node,Integer>(layout);
+	    BasicVisualizationServer<INode,Integer> vv = new BasicVisualizationServer<INode,Integer>(layout);
 	    vv.setPreferredSize(new Dimension(600,600)); //Sets the viewing area size
 	    
         // Setup up a new vertex to paint transformer...
-        Transformer<Node,Paint> vertexPaint = new Transformer<Node,Paint>() {
-            public Paint transform(Node i) {
+        Transformer<INode,Paint> vertexPaint = new Transformer<INode,Paint>() {
+            public Paint transform(INode i) {
             	return i.getColor();
             }
         };  
@@ -78,7 +61,7 @@ public class Network {
 	    Main.add(vv); 	
 	}
 	
-	public Graph<Node, Integer> getGraph() {
+	public Graph<INode, Integer> getGraph() {
 		return this.g;
 	}
 	
@@ -95,16 +78,46 @@ public class Network {
 	}
 
 	public void step(int stepCount) {
+		double oldTime;
+		
 		for(int i = 0; i < stepCount; i++) {
-			for (Node n : nodes) {
+			oldTime = System.currentTimeMillis();
+			for (INode n : nodes) {
 				n.step();
 			}
+			Main.updateStepsPerSecond(1/((System.currentTimeMillis() - oldTime)/1000));
 		}
 	}
 
-	public Node getRandomNode() {
+	public INode getRandomNode() {
 		Random rand = new Random();
 		return nodes.get(rand.nextInt(this.nodes.size()));
+	}
+
+	@Override
+	public void run() {
+		double oldTime;
+		int stepCount = 0;
+		while(true) {
+			oldTime = System.currentTimeMillis();
+			for (INode n : nodes) {
+				n.step();
+			}
+			stepCount++;
+			Main.updateStepsPerSecond(1/((System.currentTimeMillis() - oldTime)/1000));
+			System.out.println(stepCount);
+		}
+	}
+
+	public boolean alreadyAttachedToGO(INode node) {
+		for (INode n : nodes) {
+			if (n instanceof GO) {
+				if (n.hasDendriteConnectedTo(node)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	

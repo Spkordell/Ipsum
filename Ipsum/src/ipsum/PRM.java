@@ -3,8 +3,6 @@ import java.awt.Color;
 import java.awt.Paint;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
-
 import jsat.DataSet;
 import jsat.SimpleDataSet;
 import jsat.classifiers.DataPoint;
@@ -55,7 +53,7 @@ public class PRM implements Node {
 		Vec frame = new DenseVector(dendriteValues);
 		frames.add(new DataPoint(frame,null,null));
 		data = new SimpleDataSet(frames);
-			
+		
 		if (frames.size() >= minSteps) {
 			List<List<DataPoint>> cluster = dbscan.cluster(data);
 	
@@ -82,6 +80,17 @@ public class PRM implements Node {
 		    
 		    //System.out.println("Center: "+center+", Last: "+frame+", Axon: "+ axon);
 		}
+		decideMakeNewConnection();
+	}
+
+	private void decideMakeNewConnection() {
+		if (dendrites.size() < 2) { //FIXME: Should be < 1, changed for testing
+			Node node = this;
+			while(node == this || node.isReadyToConnect() == false) {
+				node = this.network.getRandomNode();
+			}
+			connectDendriteTo(node);
+		}
 	}
 
 	@Override
@@ -96,12 +105,12 @@ public class PRM implements Node {
 	}
 	
 	public void connectDendriteTo(Node node) {
-		if (node.isReadyToConnect()) {
-			this.dendrites.add(node);
-			
-			Random random = new Random();
-			this.network.getGraph().addEdge(random.nextInt(), node, this);
-		}
+		this.dendrites.add(node);
+		this.network.getGraph().addEdge(this.network.getEdgeCount(), node, this);
+		this.network.incrementEdgeCount();
+		
+		//Need to clear data every time dimensionality changes
+		this.frames = new LinkedList<DataPoint>();
 	}
 
 	public void plotDendrites() {

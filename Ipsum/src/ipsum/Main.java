@@ -44,10 +44,12 @@ public class Main {
         */
         
         Network network = new Network();
-        network.run();
+        network.buildNetwork(20,50,10);
+        network.drawGraph();
+        network.step(100);
         
         //Display the window.
-        frame.setPreferredSize(new Dimension(1000,600));
+        frame.setPreferredSize(new Dimension(700,700));
         frame.pack();
         frame.setVisible(true);
     }

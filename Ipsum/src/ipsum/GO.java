@@ -2,8 +2,6 @@ package ipsum;
 
 import java.awt.Color;
 import java.awt.Paint;
-import java.util.Random;
-
 
 public class GO implements Node{
 	private double axon;
@@ -13,12 +11,18 @@ public class GO implements Node{
 	public GO(Network network) {
 		this.network = network;
 		this.network.getGraph().addVertex(this);
+		
+		Node node = this;
+		while(node instanceof GI || node instanceof GO) {
+			node = this.network.getRandomNode();
+		}
+		connectDendriteTo(node);
 	}
 
 	@Override
 	public void step() {
 		this.axon = dendrite.getAxon();
-		System.out.println("GO: "+ axon);
+		//System.out.println("GO: "+ axon);
 	}
 
 	@Override
@@ -33,9 +37,8 @@ public class GO implements Node{
 
 	public void connectDendriteTo(Node node) {
 		this.dendrite = node;
-		
-		Random random = new Random();
-		this.network.getGraph().addEdge(random.nextInt(), node, this);
+		this.network.getGraph().addEdge(this.network.getEdgeCount(), node, this);
+		this.network.incrementEdgeCount();
 	}
 
 	@Override

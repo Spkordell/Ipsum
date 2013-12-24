@@ -44,9 +44,10 @@ public class Main {
         }
         prm.plotDendrites();
 
-        
         //Make a clusterTest
         //ClusterTest clusterTest = new ClusterTest();
+        
+        Network network = new Network();
         
         //Display the window.
         frame.setPreferredSize(new Dimension(1000,600));

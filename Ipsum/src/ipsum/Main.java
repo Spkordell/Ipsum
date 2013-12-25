@@ -1,18 +1,14 @@
 package ipsum;
+import ipsum.exceptions.notEnoughPRMsException;
+import ipsum.gifunctions.GITestFunction1;
+import ipsum.gifunctions.GITestFunction2;
+import ipsum.interfaces.GIFunction;
+
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 
 import javax.swing.*;
-
-
-/* TODO list
- * 
- * 
- * Need to allow GIs to take a function
- * 
- * 
- */
 
 public class Main {
 	private static JFrame frame;
@@ -41,9 +37,14 @@ public class Main {
         
         frame.add(stepsPerSecondLabel,BorderLayout.SOUTH);
         
+        LinkedList<GIFunction> giFunctions = new LinkedList<GIFunction>();
+        giFunctions.add(new GITestFunction1());
+        giFunctions.add(new GITestFunction2());
+        
         Network network = new Network();
         try {
-			network.buildNetwork(2,2,2);
+			//network.buildNetwork(2,2,2,new GITestFunctionRandom());
+        	network.buildNetwork(giFunctions,2,2);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);

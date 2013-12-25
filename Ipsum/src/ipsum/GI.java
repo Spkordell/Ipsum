@@ -1,24 +1,27 @@
 package ipsum;
+import ipsum.interfaces.GIFunction;
+import ipsum.interfaces.INode;
+
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.LinkedList;
-import java.util.List;
 
 
 public class GI implements INode {
 	private double axon;
 	private Network network;
+	private GIFunction f;
 
-	public GI(Network network, double axon) {
+	public GI(Network network, GIFunction f) {
 		this.network = network;
-		this.axon = axon;
+		this.f = f;
 		this.network.getGraph().addVertex(this);
+		this.axon = f.initializeAxon();;
 	}
 	
 	@Override
 	public void step() {
-		//FIXME
-		this.axon++;
+		this.axon = f.step(this.axon);
 	}
 
 	@Override

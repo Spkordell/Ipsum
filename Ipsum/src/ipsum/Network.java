@@ -1,8 +1,13 @@
 package ipsum;
 
+import ipsum.exceptions.notEnoughPRMsException;
+import ipsum.interfaces.GIFunction;
+import ipsum.interfaces.INode;
+
 import java.awt.Dimension;
 import java.awt.Paint;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.collections15.Transformer;
@@ -24,12 +29,12 @@ public class Network implements Runnable {
 		nodes = new LinkedList<INode>();	
 	}
 	
-	public void buildNetwork(int GICount, int PRMCount, int GOCount) throws notEnoughPRMsException {
+	public void buildNetwork(int GICount, int PRMCount, int GOCount, GIFunction f) throws notEnoughPRMsException {
 		if (GOCount > PRMCount) {
 			throw(new notEnoughPRMsException());			
 		}
 		for (int i = 0; i < GICount; i++) {
-			nodes.add(new GI(this,-1));
+			nodes.add(new GI(this,f));
 		}
 		for (int i = 0; i < PRMCount; i++) {
 			nodes.add(new PRM(this));
@@ -39,13 +44,28 @@ public class Network implements Runnable {
 		}				
 	}
 	
+	public void buildNetwork(List<GIFunction> giFunctions, int PRMCount, int GOCount) throws notEnoughPRMsException {
+		if (GOCount > PRMCount) {
+			throw(new notEnoughPRMsException());			
+		}
+		for (GIFunction f: giFunctions) {
+			nodes.add(new GI(this,f));
+		}
+		for (int i = 0; i < PRMCount; i++) {
+			nodes.add(new PRM(this));
+		}		
+		for (int i = 0; i < GOCount; i++) {
+			nodes.add(new GO(this));
+		}	
+	}
+	
 	public void drawGraph() {
 	    // The Layout<V, E> is parameterized by the vertex and edge types
 	    Layout<INode, Integer> layout = new SpringLayout<INode, Integer>(g);
-	    layout.setSize(new Dimension(600,600)); // sets the initial size of the layout space
+	    layout.setSize(new Dimension(200,200)); // sets the initial size of the layout space
 	    // The BasicVisualizationServer<V,E> is parameterized by the vertex and edge types
 	    BasicVisualizationServer<INode,Integer> vv = new BasicVisualizationServer<INode,Integer>(layout);
-	    vv.setPreferredSize(new Dimension(600,600)); //Sets the viewing area size
+	    vv.setPreferredSize(new Dimension(200,200)); //Sets the viewing area size
 	    
         // Setup up a new vertex to paint transformer...
         Transformer<INode,Paint> vertexPaint = new Transformer<INode,Paint>() {
@@ -104,6 +124,10 @@ public class Network implements Runnable {
 			//stepCount++;
 			Main.updateStepsPerSecond(1/((System.currentTimeMillis() - oldTime)/1000));
 			//System.out.println(stepCount);
+			/*if(stepCount == 100){
+				((PRM)(nodes.get(2))).plotDendrites();
+				((PRM)(nodes.get(3))).plotDendrites();
+			}*/
 		}
 	}
 
@@ -127,6 +151,8 @@ public class Network implements Runnable {
 		}
 		return false;
 	}
+
+
 	
 	
 }

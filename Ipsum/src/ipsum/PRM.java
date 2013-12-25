@@ -1,4 +1,6 @@
 package ipsum;
+import ipsum.interfaces.INode;
+
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.LinkedList;

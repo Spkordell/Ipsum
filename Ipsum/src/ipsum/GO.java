@@ -1,9 +1,10 @@
 package ipsum;
 
+import ipsum.interfaces.INode;
+
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.LinkedList;
-import java.util.List;
 
 public class GO implements INode{
 	private double axon;

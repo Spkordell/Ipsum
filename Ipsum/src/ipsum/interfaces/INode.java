@@ -1,4 +1,4 @@
-package ipsum;
+package ipsum.interfaces;
 import java.awt.Paint;
 import java.util.LinkedList;
 

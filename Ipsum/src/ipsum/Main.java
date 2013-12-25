@@ -8,7 +8,7 @@ import javax.swing.*;
 
 /* TODO list
  * 
- * ensure no PRM can attach to the same set of nodes
+ * 
  * Need to allow GIs to take a function
  * 
  * 
@@ -43,7 +43,7 @@ public class Main {
         
         Network network = new Network();
         try {
-			network.buildNetwork(50,50,10);
+			network.buildNetwork(2,2,2);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -86,5 +86,9 @@ public class Main {
 			stepsPerSecondLabel.setText("sps: "+Double.parseDouble(new DecimalFormat("#.#").format(stepsPerSecond)));
 		} catch(NumberFormatException e) {
 		}
+	}
+
+	public static double getStepsPerSecond() {
+		return stepsPerSecond;
 	}
 }

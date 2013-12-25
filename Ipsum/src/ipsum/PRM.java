@@ -25,6 +25,7 @@ import jsat.linear.Vec;
 
 public class PRM implements INode {
 	private static final int minSteps = 4;
+	private static final int frameCleaningMultiple = 30;
 	private LinkedList<INode> dendrites;
 	private LinkedList<DataPoint> frames;
 	private double axon;
@@ -45,9 +46,7 @@ public class PRM implements INode {
 	public void step() {
 		if (dendrites.size() > 0) {
 			LinkedList<Double> dendriteValues = new LinkedList<Double>();	
-			DataSet data;
-			
-			//TODO: decide how long to keep frames and begin throwing away old ones after a certain point, perhaps some multiple of steps per second, allowing for automatic scaling of the memory as available
+			DataSet data;			
 			
 			for(INode d: dendrites) {
 				dendriteValues.add(d.getAxon());
@@ -81,9 +80,17 @@ public class PRM implements INode {
 			    axon = axonVec.dot(axonVec);
 			    
 			    //System.out.println("Center: "+center+", Last: "+frame+", Axon: "+ axon);
+			    
+			    cleanOldFrames();
 			}
 		}
 		growDendrites();
+	}
+
+	private void cleanOldFrames() {
+		while (frames.size() > Main.getStepsPerSecond() * frameCleaningMultiple) {
+			frames.removeFirst();
+		}
 	}
 
 	private void growDendrites() {

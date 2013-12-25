@@ -28,8 +28,6 @@ public class Network implements Runnable {
 		if (GOCount > PRMCount) {
 			throw(new notEnoughPRMsException());			
 		}
-		
-		
 		for (int i = 0; i < GICount; i++) {
 			nodes.add(new GI(this,-1));
 		}
@@ -97,24 +95,34 @@ public class Network implements Runnable {
 	@Override
 	public void run() {
 		double oldTime;
-		int stepCount = 0;
+		//int stepCount = 0;
 		while(true) {
 			oldTime = System.currentTimeMillis();
 			for (INode n : nodes) {
 				n.step();
 			}
-			stepCount++;
+			//stepCount++;
 			Main.updateStepsPerSecond(1/((System.currentTimeMillis() - oldTime)/1000));
-			System.out.println(stepCount);
+			//System.out.println(stepCount);
 		}
 	}
 
-	public boolean alreadyAttachedToGO(INode node) {
+	public boolean hasTwin(INode node) {
+		/* 
+		 * A twin is defined as any node in the network with the same configuration of dendrite
+		 */
 		for (INode n : nodes) {
-			if (n instanceof GO) {
-				if (n.hasDendriteConnectedTo(node)) {
-					return true;
-				}
+			if (n.isTwin(node)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean hasTwinIfConnected(INode node, INode toNode) {
+		for (INode n : nodes) {
+			if (n.isTwinIfConnected(node,toNode)) {
+				return true;
 			}
 		}
 		return false;

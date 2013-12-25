@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Paint;
 import java.util.LinkedList;
 import java.util.List;
+
 import jsat.DataSet;
 import jsat.SimpleDataSet;
 import jsat.classifiers.DataPoint;
@@ -84,9 +85,12 @@ public class PRM implements INode {
 	}
 
 	private void decideMakeNewConnection() {
-		if (dendrites.size() < 1) {
+		if (dendrites.size() < 2) { //TODO: should be 1
 			INode node = this;
-			while(node == this || node.isReadyToConnect() == false) {
+			while(node == this || node.isReadyToConnect() == false || this.network.hasTwinIfConnected(this,node)) {
+				
+				//todo, add condition to exit the loop without makign a connection if there are no possible connections
+				
 				node = this.network.getRandomNode();
 			}
 			connectDendriteTo(node);
@@ -124,6 +128,7 @@ public class PRM implements INode {
 		return Color.BLUE;
 	}
 
+	
 	@Override
 	public boolean hasDendriteConnectedTo(INode node) {
 		for (INode n: dendrites) {
@@ -132,5 +137,34 @@ public class PRM implements INode {
 			}
 		}
 		return false;
+	}
+	
+	
+	public boolean isTwin(INode node) {
+		if (dendrites.size() == 0) {
+			return false;
+		}
+		for (INode n: dendrites) {
+			if (!node.hasDendriteConnectedTo(n)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean isTwinIfConnected(INode node, INode toNode) {
+		if (dendrites.size() == 0) {
+			return false;
+		}
+		@SuppressWarnings("unchecked")
+		LinkedList<INode> temp = (LinkedList<INode>) node.getDendrites().clone();
+		temp.add(toNode);
+		return (dendrites.containsAll(temp));
+	}
+
+	@Override
+	public LinkedList<INode> getDendrites() {
+		return dendrites;
 	}
 }

@@ -1,6 +1,8 @@
 package ipsum;
 import java.awt.Color;
 import java.awt.Paint;
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class GI implements INode {
@@ -37,6 +39,21 @@ public class GI implements INode {
 	@Override
 	public boolean hasDendriteConnectedTo(INode node) {
 		return false;
+	}
+
+	@Override
+	public boolean isTwin(INode node) {
+		return false;
+	}
+
+	@Override
+	public boolean isTwinIfConnected(INode node, INode toNode) {
+		return false;
+	}
+
+	@Override
+	public LinkedList<INode> getDendrites() {
+		return new LinkedList<INode>();
 	}
 
 }

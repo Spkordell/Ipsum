@@ -2,6 +2,8 @@ package ipsum;
 
 import java.awt.Color;
 import java.awt.Paint;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GO implements INode{
 	private double axon;
@@ -13,7 +15,7 @@ public class GO implements INode{
 		this.network.getGraph().addVertex(this);
 		
 		INode node = this;
-		while(node instanceof GI || node instanceof GO || this.network.alreadyAttachedToGO(node)) {
+		while(node instanceof GI || node instanceof GO || this.network.hasTwin(node)) {
 			node = this.network.getRandomNode();
 		}
 		connectDendriteTo(node);
@@ -49,6 +51,23 @@ public class GO implements INode{
 	@Override
 	public boolean hasDendriteConnectedTo(INode node) {
 		return (dendrite == node);
+	}
+
+	@Override
+	public boolean isTwin(INode node) {
+		return hasDendriteConnectedTo(node);
+	}
+
+	@Override
+	public boolean isTwinIfConnected(INode node, INode toNode) {
+		return (toNode == node);
+	}
+
+	@Override
+	public LinkedList<INode> getDendrites() {
+		LinkedList<INode> dendrites = new LinkedList<INode>();
+		dendrites.add(dendrite);
+		return dendrites;
 	}
 
 }

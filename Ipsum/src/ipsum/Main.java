@@ -44,7 +44,7 @@ public class Main {
         
         Network network = new Network();
         try {
-			network.buildNetwork(2,2,2);
+			network.buildNetwork(30,50,50);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);

@@ -14,7 +14,6 @@ import javax.swing.*;
  * 
  */
 
-
 public class Main {
 	private static JFrame frame;
 	private static JPanel mainPanel;
@@ -44,7 +43,7 @@ public class Main {
         
         Network network = new Network();
         try {
-			network.buildNetwork(30,50,50);
+			network.buildNetwork(50,50,10);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);

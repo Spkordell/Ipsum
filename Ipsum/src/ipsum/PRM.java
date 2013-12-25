@@ -43,57 +43,59 @@ public class PRM implements INode {
 
 	@Override
 	public void step() {
-		LinkedList<Double> dendriteValues = new LinkedList<Double>();	
-		DataSet data;
-		
-		//TODO: decide how long to keep frames and begin throwing away old ones after a certain point
-		
-		for(INode d: dendrites) {
-			dendriteValues.add(d.getAxon());
-		}
-		Vec frame = new DenseVector(dendriteValues);
-		frames.add(new DataPoint(frame,null,null));
-		data = new SimpleDataSet(frames);
-		
-		if (frames.size() >= minSteps) {
-			List<List<DataPoint>> cluster = dbscan.cluster(data);
-	
-			//find largest cluster
-			int largestCluster = 0;
-			for (int i = 0; i < cluster.size(); i++) {
-				if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
-					largestCluster = i;
-				}
+		if (dendrites.size() > 0) {
+			LinkedList<Double> dendriteValues = new LinkedList<Double>();	
+			DataSet data;
+			
+			//TODO: decide how long to keep frames and begin throwing away old ones after a certain point, perhaps some multiple of steps per second, allowing for automatic scaling of the memory as available
+			
+			for(INode d: dendrites) {
+				dendriteValues.add(d.getAxon());
 			}
-		       
-	        //find center of largest cluster (Find the mean of each dimension)
-	        Vec center = DenseVector.zeros(dendrites.size());
-	        for (int d = 0; d < dendrites.size(); d++) { //do for each dimension, currently 2
-		        for (int i = 0; i < cluster.get(largestCluster).size(); i++) {
-		     	   center.set(d, center.get(d)+cluster.get(largestCluster).get(i).getNumericalValues().get(d));
+			Vec frame = new DenseVector(dendriteValues);
+			frames.add(new DataPoint(frame,null,null));
+			data = new SimpleDataSet(frames);
+			
+			if (frames.size() >= minSteps) {
+				List<List<DataPoint>> cluster = dbscan.cluster(data);
+		
+				//find largest cluster
+				int largestCluster = 0;
+				for (int i = 0; i < cluster.size(); i++) {
+					if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
+						largestCluster = i;
+					}
+				}
+			       
+		        //find center of largest cluster (Find the mean of each dimension)
+		        Vec center = DenseVector.zeros(dendrites.size());
+		        for (int d = 0; d < dendrites.size(); d++) { //do for each dimension, currently 2
+			        for (int i = 0; i < cluster.get(largestCluster).size(); i++) {
+			     	   center.set(d, center.get(d)+cluster.get(largestCluster).get(i).getNumericalValues().get(d));
+			        }
+			        center.set(d, center.get(d)/cluster.get(largestCluster).size());
 		        }
-		        center.set(d, center.get(d)/cluster.get(largestCluster).size());
-	        }
-		       
-		    //draw vector from center of largest cluster to latest input
-		    Vec axonVec = frame.subtract(center);
-		    axon = axonVec.dot(axonVec);
-		    
-		    //System.out.println("Center: "+center+", Last: "+frame+", Axon: "+ axon);
+			       
+			    //draw vector from center of largest cluster to latest input
+			    Vec axonVec = frame.subtract(center);
+			    axon = axonVec.dot(axonVec);
+			    
+			    //System.out.println("Center: "+center+", Last: "+frame+", Axon: "+ axon);
+			}
 		}
-		decideMakeNewConnection();
+		growDendrites();
 	}
 
-	private void decideMakeNewConnection() {
-		if (dendrites.size() < 2) { //TODO: should be 1
+	private void growDendrites() {
+		if (dendrites.size() < 1) {
 			INode node = this;
-			while(node == this || node.isReadyToConnect() == false || this.network.hasTwinIfConnected(this,node)) {
-				
-				//todo, add condition to exit the loop without makign a connection if there are no possible connections
-				
+			int attemptsRemaining = 2;
+			while((node == this || node.isReadyToConnect() == false || this.network.hasTwinIfConnected(this,node)) && attemptsRemaining-- > 0) {
 				node = this.network.getRandomNode();
 			}
-			connectDendriteTo(node);
+			if(attemptsRemaining > 0) {
+				connectDendriteTo(node);
+			}
 		}
 	}
 
@@ -105,7 +107,7 @@ public class PRM implements INode {
 	@Override
 	public boolean isReadyToConnect() {
 		//TODO: future implementations will need to base this on the correlation as well. Answer this question, has this node found a pattern?
-		return (frames.size() >= minSteps);
+		return (frames.size() >= minSteps && dendrites.size() > 1);
 	}
 	
 	public void connectDendriteTo(INode node) {

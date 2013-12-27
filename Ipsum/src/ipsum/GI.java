@@ -5,17 +5,20 @@ import ipsum.interfaces.INode;
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.LinkedList;
+import java.util.Random;
 
 
 public class GI implements INode {
 	private double axon;
 	private Network network;
 	private GIFunction f;
+	Random rand;
 
 	public GI(Network network, GIFunction f) {
 		this.network = network;
 		this.f = f;
 		this.network.getGraph().addVertex(this);
+		this.rand = new Random();
 		this.axon = f.initializeAxon();;
 	}
 	
@@ -31,7 +34,7 @@ public class GI implements INode {
 
 	@Override
 	public boolean isReadyToConnect() {
-		return true;
+		return rand.nextBoolean();
 	}
 
 	@Override

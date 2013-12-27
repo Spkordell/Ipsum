@@ -14,12 +14,14 @@ import javax.swing.*;
 
 /*TODO list
  * 
+ * Fix Trimming (use sleeping)
  * 
- * Something is still wrong with the twin function I think
+ * Something is still does not seem right with the way to-be-twins are calculated. White cells should be able to connect. 
  * 
- * Fix Trimming
- * FIx adding to be a percentage in cluster
+ * train towards a directive
+ * Make simulators for testing
  * 
+ * Fix exceptions in PRM (uncomment the stack-trace print in the catch to see what I mean)
  */
 
 public class Main {
@@ -50,13 +52,10 @@ public class Main {
         LinkedList<GIFunction> giFunctions = new LinkedList<GIFunction>();
         giFunctions.add(new GITestFunction1());
         giFunctions.add(new GITestFunction2());  
-        giFunctions.add(new GITestFunction2());  
-        giFunctions.add(new GITestFunction2());  
-        giFunctions.add(new GITestFunction2());  
         Network network = new Network();
         try {
-			network.buildNetwork(5,15,1,new GITestFunctionRandom());
-        	//network.buildNetwork(giFunctions,15,1);
+			network.buildNetwork(10,60,1,new GITestFunctionRandom());
+        	//network.buildNetwork(giFunctions,1,0);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);

@@ -15,7 +15,13 @@ public class GITestFunctionRandom implements GIFunction {
 
 	@Override
 	public double step(double lastAxon) {
-		return rand.nextDouble();
+		double a = rand.nextDouble();
+		/*if (a > .5) {
+			a += .1;
+		} else {
+			a -= .1;
+		}*/
+		return a;
 	}
 
 }

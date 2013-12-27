@@ -18,22 +18,22 @@ import jsat.linear.Vec;
 
 /*
  * This is a PRM which with dendrites in the form of scalers. It will group the dendrites into vectors (frames).
- * The frames will collect over time to form a matrix. The matrix will be clustered and a vector from the largest cluster to the last frame will be drawn.
- * The axon will be the dot product of this vector with itself.
- * 
- * A way to determine correlation still needs to be determined.
- * 
+ * The frames will collect over time to form a matrix. The matrix will be clustered and the axon will be determined as by (number of points in cluster last frame was grouped into)/total number of saved frames.
+ *  
  * MDS or tensors are not needed with this implementation.
+ * 
  */
 
 public class PRM implements INode {
 	private static final int minSteps = 4;
 	private static final int frameCleaningMultiple = 200;
+	private static final float connectionProbabilityDivider = 20;
 	private LinkedList<INode> dendrites;
 	private LinkedList<DataPoint> frames;
 	private double axon;
 	private Network network;
 	private int clusterCount;
+	private float correlation;
 	
 	DBSCAN dbscan;
 	Random rand;
@@ -47,14 +47,16 @@ public class PRM implements INode {
 		this.axon = -1;
 		this.clusterCount = 0;
 		this.rand = new Random();
+		this.correlation = 0;
 	}
 
 	@Override
 	public void step() {
 		if (dendrites.size() > 0) {
-			LinkedList<Double> dendriteValues = new LinkedList<Double>();	
-			DataSet data;			
 			
+			//prepare the incoming data
+			LinkedList<Double> dendriteValues = new LinkedList<Double>();	
+			DataSet data;					
 			for(INode d: dendrites) {
 				dendriteValues.add(d.getAxon());
 			}
@@ -62,44 +64,28 @@ public class PRM implements INode {
 			frames.add(new DataPoint(frame,null,null));
 			data = new SimpleDataSet(frames);
 
+			//process the data
 			if (frames.size() >= minSteps) {
 				try {
-					List<List<DataPoint>> cluster = dbscan.cluster(data,3);
-					
+					//cluster
+					int[] designations = dbscan.cluster(data,3,(int[])null);			
+					List<List<DataPoint>> cluster = DBSCAN.createClusterListFromAssignmentArray(designations, data);
 					//find largest cluster
 					int largestCluster = 0;
 					for (int i = 0; i < cluster.size(); i++) {
 						if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
 							largestCluster = i;
 						}
-					}
-				       
-					/*
-			        //find center of largest cluster (Find the mean of each dimension)
-			        Vec center = DenseVector.zeros(dendrites.size());
-			        for (int d = 0; d < dendrites.size(); d++) { //do for each dimension, currently 2
-				        for (int i = 0; i < cluster.get(largestCluster).size(); i++) {
-				     	   center.set(d, center.get(d)+cluster.get(largestCluster).get(i).getNumericalValues().get(d));
-				        }
-				        center.set(d, center.get(d)/cluster.get(largestCluster).size());
-			        }
-				       
-				    //draw vector from center of largest cluster to latest input
-				    Vec axonVec = frame.subtract(center);
-				    axon = axonVec.dot(axonVec);
-				    */
-					
-					axon = cluster.get(largestCluster).size();
-				    //System.out.println("Center: "+center+", Last: "+frame+", Axon: "+ axon);
-					
-					clusterCount = cluster.size();
-				    
-				    
-				    //System.out.println(cluster.get(largestCluster).size()+"/"+frames.size()+"="+(float)cluster.get(largestCluster).size()/frames.size());
-				} catch (RuntimeException e) {
-					//System.out.println(frames.size()+"__"+dendrites.size()+"____"+dendriteValues.size()+"______"+data);	
-					axon = 0;
+					}		
+					//set axon and correlation
+					axon = (float)cluster.get(designations[designations.length-1]).size()/frames.size();
+					correlation = (float)cluster.get(largestCluster).size()/frames.size();
+				} catch (RuntimeException e) {						
+					axon = -1;
+					//e.printStackTrace();
 				}	
+			} else {
+				axon = -1;
 			}
 		}
 		growDendrites();
@@ -120,14 +106,10 @@ public class PRM implements INode {
 	}
 
 	private void growDendrites() {
-		//System.out.println(axon/frames.size());
-		//if (dendrites.size() < 1 || rand.nextInt(101) < 8.5-(1.5*clusterCount)) {
-		
-		
-		if (dendrites.size() < 1 || rand.nextFloat()<(1-(axon/frames.size()))) {
+		if (dendrites.size() < 1 || rand.nextFloat() < ((1-correlation)/connectionProbabilityDivider)   ) {
 			INode node = this;
 			int attemptsRemaining = 6;
-			while((node == this || node.isReadyToConnect() == false || this.network.hasTwinIfConnected(this,node)) && attemptsRemaining-- > 0) {
+			while((node == this || node.isReadyToConnect() == false || this.network.hasTwinIfConnected(this,node) ) && attemptsRemaining-- > 0) {
 				node = this.network.getRandomNode();
 			}
 			if(attemptsRemaining > 0) {
@@ -152,9 +134,7 @@ public class PRM implements INode {
 
 	@Override
 	public boolean isReadyToConnect() {
-		//return (frames.size() >= minSteps && dendrites.size() > 1 &&  rand.nextInt(101) < (1.5*clusterCount));
-		
-		return (frames.size() >= minSteps && dendrites.size() > 1 && rand.nextFloat()<(axon/frames.size()));
+		return (frames.size() >= minSteps && dendrites.size() > 1 && rand.nextFloat() < (correlation/connectionProbabilityDivider));
 	}
 	
 	public void connectDendriteTo(INode node) {
@@ -174,7 +154,15 @@ public class PRM implements INode {
 
 	@Override
 	public Paint getColor() {
-		return Color.BLUE;
+		if (correlation > .75) {
+			return Color.BLUE; 
+		} else if (correlation >.5){
+			return Color.ORANGE;
+		} else if (correlation > .25){
+			return Color.GRAY;
+		} else {
+			return Color.WHITE;
+		}
 	}
 
 	

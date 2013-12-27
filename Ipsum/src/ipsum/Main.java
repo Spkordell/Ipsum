@@ -2,6 +2,7 @@ package ipsum;
 import ipsum.exceptions.notEnoughPRMsException;
 import ipsum.gifunctions.GITestFunction1;
 import ipsum.gifunctions.GITestFunction2;
+import ipsum.gifunctions.GITestFunctionRandom;
 import ipsum.interfaces.GIFunction;
 
 import java.awt.*;
@@ -9,6 +10,17 @@ import java.text.DecimalFormat;
 import java.util.LinkedList;
 
 import javax.swing.*;
+
+
+/*TODO list
+ * 
+ * 
+ * Something is still wrong with the twin function I think
+ * 
+ * Fix Trimming
+ * FIx adding to be a percentage in cluster
+ * 
+ */
 
 public class Main {
 	private static JFrame frame;
@@ -24,39 +36,40 @@ public class Main {
      */
     private static void createAndShowGUI() {
     	cList = new LinkedList<JComponent>();
-    	mainPanel = new JPanel(new GridLayout(1, 1));
-    	
+    	mainPanel = new JPanel(new GridLayout(1, 1));    	
         //Create and set up the window.
         frame = new JFrame("Ipsum");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        frame.add(mainPanel,BorderLayout.CENTER);
-      
+        frame.add(mainPanel,BorderLayout.CENTER);      
         stepsPerSecondLabel = new JLabel("sps: "+stepsPerSecond);
-        stepsPerSecondLabel.setSize(new Dimension(100,10));
-        
+        stepsPerSecondLabel.setSize(new Dimension(100,10));        
         frame.add(stepsPerSecondLabel,BorderLayout.SOUTH);
+        
         
         LinkedList<GIFunction> giFunctions = new LinkedList<GIFunction>();
         giFunctions.add(new GITestFunction1());
-        giFunctions.add(new GITestFunction2());
-        
+        giFunctions.add(new GITestFunction2());  
+        giFunctions.add(new GITestFunction2());  
+        giFunctions.add(new GITestFunction2());  
+        giFunctions.add(new GITestFunction2());  
         Network network = new Network();
         try {
-			//network.buildNetwork(2,2,2,new GITestFunctionRandom());
-        	network.buildNetwork(giFunctions,2,2);
+			network.buildNetwork(5,15,1,new GITestFunctionRandom());
+        	//network.buildNetwork(giFunctions,15,1);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
         network.drawGraph();
-     
+        (new Thread(network)).start();
+        
+        //ClusterTest clusterTest = new ClusterTest();
+        
         //Display the window.
         frame.setPreferredSize(new Dimension(700,700));
         frame.pack();
         frame.setVisible(true);
-
-        (new Thread(network)).start();
     }
  
     public static void main(String[] args) {

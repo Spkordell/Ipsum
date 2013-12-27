@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Paint;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import jsat.DataSet;
 import jsat.SimpleDataSet;
@@ -27,13 +28,15 @@ import jsat.linear.Vec;
 
 public class PRM implements INode {
 	private static final int minSteps = 4;
-	private static final int frameCleaningMultiple = 30;
+	private static final int frameCleaningMultiple = 200;
 	private LinkedList<INode> dendrites;
 	private LinkedList<DataPoint> frames;
 	private double axon;
 	private Network network;
+	private int clusterCount;
 	
 	DBSCAN dbscan;
+	Random rand;
 	
 	public PRM(Network network) {
 		this.network = network;
@@ -42,6 +45,8 @@ public class PRM implements INode {
 		this.frames = new LinkedList<DataPoint>();
 		this.dbscan = new DBSCAN();
 		this.axon = -1;
+		this.clusterCount = 0;
+		this.rand = new Random();
 	}
 
 	@Override
@@ -56,49 +61,72 @@ public class PRM implements INode {
 			Vec frame = new DenseVector(dendriteValues);
 			frames.add(new DataPoint(frame,null,null));
 			data = new SimpleDataSet(frames);
-			
+
 			if (frames.size() >= minSteps) {
-				List<List<DataPoint>> cluster = dbscan.cluster(data);
-		
-				//find largest cluster
-				int largestCluster = 0;
-				for (int i = 0; i < cluster.size(); i++) {
-					if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
-						largestCluster = i;
+				try {
+					List<List<DataPoint>> cluster = dbscan.cluster(data,3);
+					
+					//find largest cluster
+					int largestCluster = 0;
+					for (int i = 0; i < cluster.size(); i++) {
+						if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
+							largestCluster = i;
+						}
 					}
-				}
-			       
-		        //find center of largest cluster (Find the mean of each dimension)
-		        Vec center = DenseVector.zeros(dendrites.size());
-		        for (int d = 0; d < dendrites.size(); d++) { //do for each dimension, currently 2
-			        for (int i = 0; i < cluster.get(largestCluster).size(); i++) {
-			     	   center.set(d, center.get(d)+cluster.get(largestCluster).get(i).getNumericalValues().get(d));
+				       
+					/*
+			        //find center of largest cluster (Find the mean of each dimension)
+			        Vec center = DenseVector.zeros(dendrites.size());
+			        for (int d = 0; d < dendrites.size(); d++) { //do for each dimension, currently 2
+				        for (int i = 0; i < cluster.get(largestCluster).size(); i++) {
+				     	   center.set(d, center.get(d)+cluster.get(largestCluster).get(i).getNumericalValues().get(d));
+				        }
+				        center.set(d, center.get(d)/cluster.get(largestCluster).size());
 			        }
-			        center.set(d, center.get(d)/cluster.get(largestCluster).size());
-		        }
-			       
-			    //draw vector from center of largest cluster to latest input
-			    Vec axonVec = frame.subtract(center);
-			    axon = axonVec.dot(axonVec);
-			    
-			    //System.out.println("Center: "+center+", Last: "+frame+", Axon: "+ axon);
-			    
-			    cleanOldFrames();
+				       
+				    //draw vector from center of largest cluster to latest input
+				    Vec axonVec = frame.subtract(center);
+				    axon = axonVec.dot(axonVec);
+				    */
+					
+					axon = cluster.get(largestCluster).size();
+				    //System.out.println("Center: "+center+", Last: "+frame+", Axon: "+ axon);
+					
+					clusterCount = cluster.size();
+				    
+				    
+				    //System.out.println(cluster.get(largestCluster).size()+"/"+frames.size()+"="+(float)cluster.get(largestCluster).size()/frames.size());
+				} catch (RuntimeException e) {
+					//System.out.println(frames.size()+"__"+dendrites.size()+"____"+dendriteValues.size()+"______"+data);	
+					axon = 0;
+				}	
 			}
 		}
 		growDendrites();
+		//trimDendrites();
+		cleanOldFrames();
+		
 	}
 
 	private void cleanOldFrames() {
-		while (frames.size() > Main.getStepsPerSecond() * frameCleaningMultiple) {
+		int removeCount = 0;
+		while (frames.size() > (Main.getStepsPerSecond() * frameCleaningMultiple)) {
 			frames.removeFirst();
+			removeCount++;
+		}
+		if (removeCount > 0) {
+			System.out.println(removeCount+" frames removed. "+frames.size() + " remaining.");
 		}
 	}
 
 	private void growDendrites() {
-		if (dendrites.size() < 1) {
+		//System.out.println(axon/frames.size());
+		//if (dendrites.size() < 1 || rand.nextInt(101) < 8.5-(1.5*clusterCount)) {
+		
+		
+		if (dendrites.size() < 1 || rand.nextFloat()<(1-(axon/frames.size()))) {
 			INode node = this;
-			int attemptsRemaining = 2;
+			int attemptsRemaining = 6;
 			while((node == this || node.isReadyToConnect() == false || this.network.hasTwinIfConnected(this,node)) && attemptsRemaining-- > 0) {
 				node = this.network.getRandomNode();
 			}
@@ -106,6 +134,15 @@ public class PRM implements INode {
 				connectDendriteTo(node);
 			}
 		}
+	}
+	
+	public void trimDendrites() {
+		if (clusterCount > 7) {
+			dendrites.remove(rand.nextInt(dendrites.size()));
+			clusterCount = 0;
+			this.frames = new LinkedList<DataPoint>();
+		}
+		
 	}
 
 	@Override
@@ -115,8 +152,9 @@ public class PRM implements INode {
 
 	@Override
 	public boolean isReadyToConnect() {
-		//TODO: future implementations will need to base this on the correlation as well. Answer this question, has this node found a pattern?
-		return (frames.size() >= minSteps && dendrites.size() > 1);
+		//return (frames.size() >= minSteps && dendrites.size() > 1 &&  rand.nextInt(101) < (1.5*clusterCount));
+		
+		return (frames.size() >= minSteps && dendrites.size() > 1 && rand.nextFloat()<(axon/frames.size()));
 	}
 	
 	public void connectDendriteTo(INode node) {

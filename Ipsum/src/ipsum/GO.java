@@ -25,7 +25,7 @@ public class GO implements INode{
 	@Override
 	public void step() {
 		this.axon = dendrite.getAxon();
-		//System.out.println("GO: "+ axon);
+		System.out.println("GO: "+ axon);
 	}
 
 	@Override

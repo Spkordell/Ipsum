@@ -62,10 +62,10 @@ public class Network implements Runnable {
 	public void drawGraph() {
 	    // The Layout<V, E> is parameterized by the vertex and edge types
 	    Layout<INode, Integer> layout = new SpringLayout<INode, Integer>(g);
-	    layout.setSize(new Dimension(200,200)); // sets the initial size of the layout space
+	    layout.setSize(new Dimension(600,600)); // sets the initial size of the layout space
 	    // The BasicVisualizationServer<V,E> is parameterized by the vertex and edge types
-	    BasicVisualizationServer<INode,Integer> vv = new BasicVisualizationServer<INode,Integer>(layout);
-	    vv.setPreferredSize(new Dimension(200,200)); //Sets the viewing area size
+	    BasicVisualizationServer<INode,Integer> vv = new BasicVisualizationServer<INode,Integer>(layout);	    
+	    vv.setPreferredSize(new Dimension(600,600)); //Sets the viewing area size
 	    
         // Setup up a new vertex to paint transformer...
         Transformer<INode,Paint> vertexPaint = new Transformer<INode,Paint>() {

@@ -17,7 +17,7 @@ import jsat.linear.Vec;
 public class ClusterTest {
 	public ClusterTest() {
 		LinkedList<DataPoint> data = new LinkedList<DataPoint>();
-		for (int i = -200; i < 200; i++) {
+		for (int i = -400; i < 400; i++) {
 			Vec v = RandomVector.random(2);
 			
 			if(v.get(0) > .3) {
@@ -45,7 +45,13 @@ public class ClusterTest {
         Main.add(plot);
 		
 		DBSCAN dbscan = new DBSCAN();	
-		List<List<DataPoint>> out = dbscan.cluster(dataSet);
+		List<List<DataPoint>> out = dbscan.cluster(dataSet,2);
+		
+		int[] outAsIntArray = dbscan.cluster(dataSet,(int[])null);
+		
+		for(int a: outAsIntArray) {
+			System.out.println("[[  "+a+"  ]]");
+		}
 		
 		System.out.println("Number of clusters: "+out.size());
 		System.out.println("Dimensionality of points: "+out.get(0).get(0).numNumericalValues());

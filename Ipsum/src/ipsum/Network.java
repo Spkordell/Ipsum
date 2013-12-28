@@ -19,6 +19,8 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 public class Network implements Runnable {
+	private static final int stepsBetweenSleeps = 300;
+
 	LinkedList<INode> nodes;
 	
 	// Graph<V, E> where V is the type of the vertices and E is the type of the edges
@@ -115,14 +117,25 @@ public class Network implements Runnable {
 	@Override
 	public void run() {
 		double oldTime;
-		//int stepCount = 0;
+		int stepCount = 0;
 		while(true) {
 			oldTime = System.currentTimeMillis();
 			for (INode n : nodes) {
 				n.step();
 			}
-			//stepCount++;
+			stepCount++;
 			Main.updateStepsPerSecond(1/((System.currentTimeMillis() - oldTime)/1000));
+			if (stepCount >= stepsBetweenSleeps) {
+				System.out.println("Sleep");
+				for (INode n : nodes) {
+					n.optimize();
+				}
+				System.out.println("Awake");
+				stepCount = 0;
+			}
+			
+			
+			
 			//System.out.println(stepCount);
 			/*if(stepCount == 100){
 				((PRM)(nodes.get(2))).plotDendrites();

@@ -54,7 +54,7 @@ public class Main {
         giFunctions.add(new GITestFunction2());  
         Network network = new Network();
         try {
-			network.buildNetwork(10,60,1,new GITestFunctionRandom());
+			network.buildNetwork(20,60,1,new GITestFunctionRandom());
         	//network.buildNetwork(giFunctions,1,0);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();

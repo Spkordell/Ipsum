@@ -71,4 +71,9 @@ public class GO implements INode{
 		return dendrites;
 	}
 
+	@Override
+	public void optimize() {
+		//do nothing
+	}
+
 }

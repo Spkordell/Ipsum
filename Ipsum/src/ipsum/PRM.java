@@ -28,11 +28,11 @@ public class PRM implements INode {
 	private static final int minSteps = 4;
 	private static final int frameCleaningMultiple = 200;
 	private static final float connectionProbabilityDivider = 20;
+	private static final int minPoints = 3;
 	private LinkedList<INode> dendrites;
 	private LinkedList<DataPoint> frames;
 	private double axon;
 	private Network network;
-	private int clusterCount;
 	private float correlation;
 	
 	DBSCAN dbscan;
@@ -45,7 +45,6 @@ public class PRM implements INode {
 		this.frames = new LinkedList<DataPoint>();
 		this.dbscan = new DBSCAN();
 		this.axon = -1;
-		this.clusterCount = 0;
 		this.rand = new Random();
 		this.correlation = 0;
 	}
@@ -68,7 +67,7 @@ public class PRM implements INode {
 			if (frames.size() >= minSteps) {
 				try {
 					//cluster
-					int[] designations = dbscan.cluster(data,3,(int[])null);			
+					int[] designations = dbscan.cluster(data,minPoints,(int[])null);			
 					List<List<DataPoint>> cluster = DBSCAN.createClusterListFromAssignmentArray(designations, data);
 					//find largest cluster
 					int largestCluster = 0;
@@ -89,7 +88,6 @@ public class PRM implements INode {
 			}
 		}
 		growDendrites();
-		//trimDendrites();
 		cleanOldFrames();
 		
 	}
@@ -118,13 +116,61 @@ public class PRM implements INode {
 		}
 	}
 	
-	public void trimDendrites() {
-		if (clusterCount > 7) {
-			dendrites.remove(rand.nextInt(dendrites.size()));
-			clusterCount = 0;
-			this.frames = new LinkedList<DataPoint>();
-		}
+	@Override
+	public void optimize() {
+		for(int k = 0; k < dendrites.size()/2; k++) {
+			if (frames.size() >= minSteps && dendrites.size() >= 2) {
+				try {
+					//calculate current correlation
+					DataSet data = new SimpleDataSet(frames);
+					List<List<DataPoint>> cluster = dbscan.cluster(data,minPoints);			
+					int largestCluster = 0;
+					for (int i = 0; i < cluster.size(); i++) {
+						if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
+							largestCluster = i;
+						}
+					}		
+					float currentCorrelation = (float)cluster.get(largestCluster).size()/frames.size(); //TODO the correlations really should be calculated by a helper function to make alterations easier
 		
+					//remove a dendrite (random for now, probably want to iterate later)
+					int dendriteToRemove = rand.nextInt(dendrites.size());
+					LinkedList<DataPoint> alteredFrames = new LinkedList<DataPoint>();
+					for (DataPoint p: frames) {
+						LinkedList<Double> alteredDendriteValues = new LinkedList<Double>();	
+						for (int i = 0; i < p.numNumericalValues(); i++) {
+							if (i != dendriteToRemove) {
+								alteredDendriteValues.add(p.getNumericalValues().get(i));
+							}
+						}
+						alteredFrames.add(new DataPoint(new DenseVector(alteredDendriteValues),null,null));
+					}
+					
+					//calculate correlation without dendrite
+					data = new SimpleDataSet(alteredFrames);
+					cluster = dbscan.cluster(data,minPoints);			
+					largestCluster = 0;
+					for (int i = 0; i < cluster.size(); i++) {
+						if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
+							largestCluster = i;
+						}
+					}		
+					float futureCorrelation = (float)cluster.get(largestCluster).size()/alteredFrames.size();  //TODO: here too, and many other placed in this class
+					
+					//if correlation rises, remove the dendrite for real, else, leave things as they are
+					if (futureCorrelation > currentCorrelation) {
+						//TODO: Will need to check for twin condition here too.
+						System.out.println("removed dendrite");
+						this.network.getGraph().removeEdge(this.network.getGraph().findEdge(dendrites.get(dendriteToRemove),this)); //TODO, check order or "this" and removed node, probably right	
+						dendrites.remove(dendriteToRemove);
+						this.frames = new LinkedList<DataPoint>();
+					} else {
+						System.out.println("kept dendrite");
+					}
+				} catch (RuntimeException e) {
+					
+				}
+			}
+		}
 	}
 
 	@Override

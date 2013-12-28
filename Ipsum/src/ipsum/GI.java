@@ -62,4 +62,9 @@ public class GI implements INode {
 		return new LinkedList<INode>();
 	}
 
+	@Override
+	public void optimize() {
+		//Do nothing
+	}
+
 }

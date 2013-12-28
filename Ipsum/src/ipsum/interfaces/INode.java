@@ -7,13 +7,13 @@ import java.util.LinkedList;
  */
 
 public interface INode {
-	public void step(); //Tells a node to process its inputs
-	public double getAxon(); //Tells the node to return it's output
-	//TODO need methods for returning correlation
+	public void step(); 
+	public double getAxon(); 
 	public boolean isReadyToConnect();
 	public Paint getColor();
 	public boolean hasDendriteConnectedTo(INode node);
 	public boolean isTwin(INode node);
 	public boolean isTwinIfConnected(INode node, INode toNode);
 	public LinkedList<INode> getDendrites();
+	public void optimize();
 }

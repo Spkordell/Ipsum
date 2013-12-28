@@ -1,8 +1,6 @@
 package ipsum;
 
 import ipsum.exceptions.notEnoughPRMsException;
-import ipsum.gifunctions.GITestFunctionRandom;
-import ipsum.gofunctions.GOPrintFunction;
 import ipsum.interfaces.GIFunction;
 import ipsum.interfaces.GOFunction;
 import ipsum.interfaces.INode;
@@ -22,7 +20,7 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 public class Network implements Runnable {
-	private static final int stepsBetweenSleeps = 500;
+	private static final int stepsBetweenSleeps = 350;
 
 	LinkedList<INode> nodes;
 	
@@ -193,6 +191,17 @@ public class Network implements Runnable {
 		for (INode n : nodes) {
 			if (n.isTwinIfDisconnected(node,toNode)) {
 				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isConnectedToGO(PRM prm) {
+		for(INode n : nodes) {
+			if (n instanceof GO) {
+				if (n.getDendrites().getFirst() == this) {
+					return true;
+				}
 			}
 		}
 		return false;

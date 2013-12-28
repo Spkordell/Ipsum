@@ -1,10 +1,13 @@
 package ipsum;
 import ipsum.exceptions.notEnoughPRMsException;
+import ipsum.games.pong.Pong;
+import ipsum.gifunctions.GIPongFunction;
 import ipsum.gifunctions.GITestFunction1;
 import ipsum.gifunctions.GITestFunction2;
 import ipsum.gifunctions.GITestFunctionRandom;
-import ipsum.gofunctions.GOPrintFunction;
+import ipsum.gofunctions.GOPongFunction;
 import ipsum.interfaces.GIFunction;
+import ipsum.interfaces.GOFunction;
 
 import java.awt.*;
 import java.text.DecimalFormat;
@@ -16,7 +19,6 @@ import javax.swing.*;
 /*TODO list
  *   
  *   
- * Make output follow GITestFunction (also, GO functions interface)  
  * train towards a directive
  * Make simulators for testing
  * 
@@ -26,7 +28,7 @@ import javax.swing.*;
 public class Main {
 	private static JFrame frame;
 	private static JPanel mainPanel;
-	private static LinkedList<JComponent> cList;
+	private static LinkedList<Component> cList;
 	private static JLabel stepsPerSecondLabel;
 	private static double stepsPerSecond;
 	private static int stepCount;
@@ -37,7 +39,7 @@ public class Main {
      * event-dispatching thread.
      */
     private static void createAndShowGUI() {
-    	cList = new LinkedList<JComponent>();
+    	cList = new LinkedList<Component>();
     	mainPanel = new JPanel(new GridLayout(1, 1));    	
         //Create and set up the window.
         frame = new JFrame("Ipsum");
@@ -49,18 +51,22 @@ public class Main {
         frame.add(stepsPerSecondLabel,BorderLayout.SOUTH);
         stepCount = 0;
         
+        
         LinkedList<GIFunction> giFunctions = new LinkedList<GIFunction>();
-        giFunctions.add(new GITestFunction1());
-        giFunctions.add(new GITestFunction2());  
+        giFunctions.add(new GIPongFunction(1));
+        giFunctions.add(new GIPongFunction(2));  
+        giFunctions.add(new GIPongFunction(3));  
+        LinkedList<GOFunction> goFunctions = new LinkedList<GOFunction>();        
+        goFunctions.add(new GOPongFunction(1));
+        goFunctions.add(new GOPongFunction(2));
         
-        GOGIRepeaterFunction gogiRepeaterFunction = new GOGIRepeaterFunction();
-        
+        GOGIRepeaterFunction gogiRepeaterFunction = new GOGIRepeaterFunction();        
         Network network = new Network();
         try {
 			//network.buildNetwork(4,100,0,new GITestFunctionRandom());
-        	//network.buildNetwork(giFunctions,100,0);
-        	network.buildNetwork(1,0,0,new GITestFunctionRandom());
-        	network.buildNetwork(1,30,1,gogiRepeaterFunction, gogiRepeaterFunction);
+        	network.buildNetwork(giFunctions,100,goFunctions);
+        	//network.buildNetwork(1,0,0,new GITestFunctionRandom());
+        	//network.buildNetwork(1,30,1,gogiRepeaterFunction, gogiRepeaterFunction);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -68,6 +74,8 @@ public class Main {
         network.drawGraph();
         (new Thread(network)).start();
         
+        new Acme.MainFrame(new Pong(), null, 400, 400);
+
         //ClusterTest clusterTest = new ClusterTest();
         
         //Display the window.
@@ -90,10 +98,10 @@ public class Main {
 		return mainPanel;
 	}
 	
-	public static void add(JComponent component) {
+	public static void add(Component component) {
 		cList.add(component);
 		getMainPanel().setLayout(new GridLayout(cList.size(), 1));
-		for(JComponent comp : cList) {
+		for(Component comp : cList) {
 			getMainPanel().add(comp);
 		}
 	}

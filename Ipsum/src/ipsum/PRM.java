@@ -231,7 +231,12 @@ public class PRM implements INode {
 	private void growDendrites() {		
 		if (dendrites.size() < 1 || rand.nextFloat() < ((1-correlation)/connectionProbabilityDivider)   ) {
 			INode node = this;
-			int attemptsRemaining = 6;
+			int attemptsRemaining;
+			if (this.network.isConnectedToGO(this)) {
+				attemptsRemaining = 51;
+			} else {
+				attemptsRemaining = 6;
+			}
 			while( (node == this || !node.isReadyToConnect() || dendrites.contains(node) || this.network.hasTwinIfConnected(this,node)) && attemptsRemaining > 0) {
 				node = this.network.getRandomNode();
 				attemptsRemaining--;

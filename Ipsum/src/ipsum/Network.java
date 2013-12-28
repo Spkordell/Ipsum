@@ -19,7 +19,7 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 public class Network implements Runnable {
-	private static final int stepsBetweenSleeps = 300;
+	private static final int stepsBetweenSleeps = 100;
 
 	LinkedList<INode> nodes;
 	
@@ -124,6 +124,7 @@ public class Network implements Runnable {
 				n.step();
 			}
 			stepCount++;
+			Main.incrementStepCount();
 			Main.updateStepsPerSecond(1/((System.currentTimeMillis() - oldTime)/1000));
 			if (stepCount >= stepsBetweenSleeps) {
 				System.out.println("Sleep");
@@ -160,6 +161,15 @@ public class Network implements Runnable {
 	public boolean hasTwinIfConnected(INode node, INode toNode) {
 		for (INode n : nodes) {
 			if (n.isTwinIfConnected(node,toNode)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean hasTwinIfDisconnected(INode node, INode toNode) {
+		for (INode n : nodes) {
+			if (n.isTwinIfDisconnected(node,toNode)) {
 				return true;
 			}
 		}

@@ -34,6 +34,7 @@ public class PRM implements INode {
 	private double axon;
 	private Network network;
 	private float correlation;
+	private boolean isOptimizing;
 	
 	DBSCAN dbscan;
 	Random rand;
@@ -105,59 +106,66 @@ public class PRM implements INode {
 	
 	@Override
 	public void optimize() {
-		for(int k = 0; k < dendrites.size()/2; k++) {
-			if (frames.size() >= minSteps && dendrites.size() >= 2) {
-				try {
-					//calculate current correlation
-					DataSet data = new SimpleDataSet(frames);
-					List<List<DataPoint>> cluster = dbscan.cluster(data,minPoints);			
-					int largestCluster = 0;
-					for (int i = 0; i < cluster.size(); i++) {
-						if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
-							largestCluster = i;
-						}
-					}		
-					float currentCorrelation = (float)cluster.get(largestCluster).size()/frames.size(); //TODO the correlations really should be calculated by a helper function to make alterations easier
-		
-					//remove a dendrite (random for now, probably want to iterate later)
-					int dendriteToRemove = rand.nextInt(dendrites.size());
-					LinkedList<DataPoint> alteredFrames = new LinkedList<DataPoint>();
-					for (DataPoint p: frames) {
-						LinkedList<Double> alteredDendriteValues = new LinkedList<Double>();	
-						for (int i = 0; i < p.numNumericalValues(); i++) {
-							if (i != dendriteToRemove) {
-								alteredDendriteValues.add(p.getNumericalValues().get(i));
+		isOptimizing = true;
+		boolean dendriteRemoved;
+		do {
+			dendriteRemoved = false;
+			for(int dendriteToRemove = 0; dendriteToRemove < dendrites.size(); dendriteToRemove++) {	
+				if (frames.size() >= minSteps && dendrites.size() >= 2) {
+					try {
+						//calculate current correlation
+						DataSet data = new SimpleDataSet(frames);
+						List<List<DataPoint>> cluster = dbscan.cluster(data,minPoints);			
+						int largestCluster = 0;
+						for (int i = 0; i < cluster.size(); i++) {
+							if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
+								largestCluster = i;
 							}
+						}		
+						float currentCorrelation = (float)cluster.get(largestCluster).size()/frames.size(); //TODO the correlations really should be calculated by a helper function to make alterations easier
+			
+						//remove a dendrite (random for now, probably want to iterate later)
+						//int dendriteToRemove = rand.nextInt(dendrites.size());
+						LinkedList<DataPoint> alteredFrames = new LinkedList<DataPoint>();
+						for (DataPoint p: frames) {
+							LinkedList<Double> alteredDendriteValues = new LinkedList<Double>();	
+							for (int i = 0; i < p.numNumericalValues(); i++) {
+								if (i != dendriteToRemove) {
+									alteredDendriteValues.add(p.getNumericalValues().get(i));
+								}
+							}
+							alteredFrames.add(new DataPoint(new DenseVector(alteredDendriteValues),null,null));
 						}
-						alteredFrames.add(new DataPoint(new DenseVector(alteredDendriteValues),null,null));
-					}
-					
-					//calculate correlation without dendrite
-					data = new SimpleDataSet(alteredFrames);
-					cluster = dbscan.cluster(data,minPoints);			
-					largestCluster = 0;
-					for (int i = 0; i < cluster.size(); i++) {
-						if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
-							largestCluster = i;
+						
+						//calculate correlation without dendrite
+						data = new SimpleDataSet(alteredFrames);
+						cluster = dbscan.cluster(data,minPoints);			
+						largestCluster = 0;
+						for (int i = 0; i < cluster.size(); i++) {
+							if (cluster.get(i).size() > cluster.get(largestCluster).size()) {
+								largestCluster = i;
+							}
+						}		
+						float futureCorrelation = (float)cluster.get(largestCluster).size()/alteredFrames.size();  //TODO: here too, and many other placed in this class
+						
+						//if correlation rises, remove the dendrite for real, else, leave things as they are
+						if (futureCorrelation > currentCorrelation && !this.network.hasTwinIfDisconnected(this,dendrites.get(dendriteToRemove))) {
+							//TODO: Will need to check for twin condition here too.
+							System.out.println("removed dendrite connecting "+this+" to "+ dendrites.get(dendriteToRemove));
+							this.network.getGraph().removeEdge(this.network.getGraph().findEdge(dendrites.get(dendriteToRemove),this)); //TODO, check order or "this" and removed node, probably right	
+							dendrites.remove(dendriteToRemove);
+							this.frames = alteredFrames;
+							dendriteRemoved = true;
+						} else {
+							//System.out.println("kept dendrite");
 						}
-					}		
-					float futureCorrelation = (float)cluster.get(largestCluster).size()/alteredFrames.size();  //TODO: here too, and many other placed in this class
-					
-					//if correlation rises, remove the dendrite for real, else, leave things as they are
-					if (futureCorrelation > currentCorrelation) {
-						//TODO: Will need to check for twin condition here too.
-						System.out.println("removed dendrite");
-						this.network.getGraph().removeEdge(this.network.getGraph().findEdge(dendrites.get(dendriteToRemove),this)); //TODO, check order or "this" and removed node, probably right	
-						dendrites.remove(dendriteToRemove);
-						this.frames = new LinkedList<DataPoint>();
-					} else {
-						System.out.println("kept dendrite");
+					} catch (RuntimeException e) {
+						
 					}
-				} catch (RuntimeException e) {
-					
 				}
 			}
-		}
+		} while (dendriteRemoved); //If we removed one, do another pass to see if we can optimize further
+		isOptimizing = false;
 	}
 
 	@Override
@@ -182,14 +190,18 @@ public class PRM implements INode {
 
 	@Override
 	public Paint getColor() {
-		if (correlation > .75) {
-			return Color.BLUE; 
-		} else if (correlation >.5){
-			return Color.ORANGE;
-		} else if (correlation > .25){
-			return Color.GRAY;
+		if (isOptimizing ) {
+			return Color.MAGENTA;
 		} else {
-			return Color.WHITE;
+			if (correlation > .75) {
+				return Color.BLUE; 
+			} else if (correlation >.5){
+				return Color.ORANGE;
+			} else if (correlation > .25){
+				return Color.GRAY;
+			} else {
+				return Color.WHITE;
+			}
 		}
 	}
 
@@ -251,5 +263,16 @@ public class PRM implements INode {
 	@Override
 	public LinkedList<INode> getDendrites() {
 		return dendrites;
+	}
+
+	@Override
+	public boolean isTwinIfDisconnected(INode node, INode toNode) {
+		if (dendrites.size() != node.getDendrites().size()-1) {
+			return false;
+		}
+		LinkedList<INode> nodesDendrites = new LinkedList<INode>();
+		nodesDendrites.addAll(node.getDendrites());
+		nodesDendrites.remove(toNode);
+		return dendrites.containsAll(nodesDendrites);	
 	}
 }

@@ -67,4 +67,10 @@ public class GI implements INode {
 		//Do nothing
 	}
 
+	@Override
+	public boolean isTwinIfDisconnected(INode node, INode toNode) {
+		return false;
+		//TODO double check this
+	}
+
 }

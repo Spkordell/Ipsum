@@ -16,4 +16,5 @@ public interface INode {
 	public boolean isTwinIfConnected(INode node, INode toNode);
 	public LinkedList<INode> getDendrites();
 	public void optimize();
+	public boolean isTwinIfDisconnected(INode node, INode toNode);
 }

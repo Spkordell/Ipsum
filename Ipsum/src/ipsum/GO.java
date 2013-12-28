@@ -76,4 +76,10 @@ public class GO implements INode{
 		//do nothing
 	}
 
+	@Override
+	public boolean isTwinIfDisconnected(INode node, INode toNode) {
+		return false;
+		//TODO double check this
+	}
+
 }

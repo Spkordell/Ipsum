@@ -13,9 +13,9 @@ import javax.swing.*;
 
 
 /*TODO list
- *  
- * Something still does not seem right with the way to-be-twins are calculated. White cells should be able to connect more often then they do now. 
- * 
+ *   
+ *   
+ * Make output follow GITestFunction (also, GO functions interface)  
  * train towards a directive
  * Make simulators for testing
  * 
@@ -28,6 +28,7 @@ public class Main {
 	private static LinkedList<JComponent> cList;
 	private static JLabel stepsPerSecondLabel;
 	private static double stepsPerSecond;
+	private static int stepCount;
 	
     /**
      * Create the GUI and show it.  For thread safety,
@@ -45,15 +46,15 @@ public class Main {
         stepsPerSecondLabel = new JLabel("sps: "+stepsPerSecond);
         stepsPerSecondLabel.setSize(new Dimension(100,10));        
         frame.add(stepsPerSecondLabel,BorderLayout.SOUTH);
-        
+        stepCount = 0;
         
         LinkedList<GIFunction> giFunctions = new LinkedList<GIFunction>();
         giFunctions.add(new GITestFunction1());
-        //giFunctions.add(new GITestFunction2());  
+        giFunctions.add(new GITestFunction2());  
         Network network = new Network();
         try {
-			network.buildNetwork(10,20,1,new GITestFunctionRandom());
-        	//network.buildNetwork(giFunctions,3,0);
+			network.buildNetwork(4,100,0,new GITestFunctionRandom());
+        	//network.buildNetwork(giFunctions,100,0);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -94,11 +95,16 @@ public class Main {
 	public static void updateStepsPerSecond(double sps) {
 		stepsPerSecond = sps;
 		try {
-			stepsPerSecondLabel.setText("sps: "+Double.parseDouble(new DecimalFormat("#.#").format(stepsPerSecond)));
+			stepsPerSecondLabel.setText("steps: "+stepCount+"     sps: "+Double.parseDouble(new DecimalFormat("#.#").format(stepsPerSecond)));
 		} catch(NumberFormatException e) {
 		}
+		
 	}
 
+	public static void incrementStepCount() {
+		stepCount++;
+	}
+	
 	public static double getStepsPerSecond() {
 		return stepsPerSecond;
 	}

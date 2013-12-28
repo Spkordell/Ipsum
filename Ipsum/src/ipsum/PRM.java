@@ -150,9 +150,8 @@ public class PRM implements INode {
 						
 						//if correlation rises, remove the dendrite for real, else, leave things as they are
 						if (futureCorrelation > currentCorrelation && !this.network.hasTwinIfDisconnected(this,dendrites.get(dendriteToRemove))) {
-							//TODO: Will need to check for twin condition here too.
 							System.out.println("removed dendrite connecting "+this+" to "+ dendrites.get(dendriteToRemove));
-							this.network.getGraph().removeEdge(this.network.getGraph().findEdge(dendrites.get(dendriteToRemove),this)); //TODO, check order or "this" and removed node, probably right	
+							this.network.getGraph().removeEdge(this.network.getGraph().findEdge(dendrites.get(dendriteToRemove),this));	
 							dendrites.remove(dendriteToRemove);
 							this.frames = alteredFrames;
 							dendriteRemoved = true;

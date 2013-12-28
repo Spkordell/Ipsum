@@ -19,12 +19,12 @@ public class GI implements INode {
 		this.f = f;
 		this.network.getGraph().addVertex(this);
 		this.rand = new Random();
-		this.axon = f.initializeAxon();;
+		this.axon = f.giInitializeAxon();;
 	}
 	
 	@Override
 	public void step() {
-		this.axon = f.step(this.axon);
+		this.axon = f.giStep(this.axon);
 	}
 
 	@Override

@@ -8,13 +8,13 @@ public class GITestFunctionRandom implements GIFunction {
 	Random rand;
 	
 	@Override
-	public double initializeAxon() {
+	public double giInitializeAxon() {
 		rand = new Random();
 		return 0;
 	}
 
 	@Override
-	public double step(double lastAxon) {
+	public double giStep(double lastAxon) {
 		double a = rand.nextDouble();
 		/*if (a > .5) {
 			a += .1;

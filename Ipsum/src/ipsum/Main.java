@@ -3,6 +3,7 @@ import ipsum.exceptions.notEnoughPRMsException;
 import ipsum.gifunctions.GITestFunction1;
 import ipsum.gifunctions.GITestFunction2;
 import ipsum.gifunctions.GITestFunctionRandom;
+import ipsum.gofunctions.GOPrintFunction;
 import ipsum.interfaces.GIFunction;
 
 import java.awt.*;
@@ -51,10 +52,15 @@ public class Main {
         LinkedList<GIFunction> giFunctions = new LinkedList<GIFunction>();
         giFunctions.add(new GITestFunction1());
         giFunctions.add(new GITestFunction2());  
+        
+        GOGIRepeaterFunction gogiRepeaterFunction = new GOGIRepeaterFunction();
+        
         Network network = new Network();
         try {
-			network.buildNetwork(4,100,0,new GITestFunctionRandom());
+			//network.buildNetwork(4,100,0,new GITestFunctionRandom());
         	//network.buildNetwork(giFunctions,100,0);
+        	network.buildNetwork(1,0,0,new GITestFunctionRandom());
+        	network.buildNetwork(1,30,1,gogiRepeaterFunction, gogiRepeaterFunction);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);

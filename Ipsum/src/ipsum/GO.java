@@ -1,5 +1,6 @@
 package ipsum;
 
+import ipsum.interfaces.GOFunction;
 import ipsum.interfaces.INode;
 
 import java.awt.Color;
@@ -10,10 +11,12 @@ public class GO implements INode{
 	private double axon;
 	private INode dendrite;
 	private Network network;
+	private GOFunction f;
 	
-	public GO(Network network) {
+	public GO(Network network, GOFunction f) {
 		this.network = network;
 		this.network.getGraph().addVertex(this);
+		this.f = f;
 		
 		INode node = this;
 		while(node instanceof GI || node instanceof GO || this.network.hasTwin(node)) {
@@ -25,7 +28,9 @@ public class GO implements INode{
 	@Override
 	public void step() {
 		this.axon = dendrite.getAxon();
-		System.out.println("GO: "+ axon);
+		if (f != null) {
+			f.goStep(dendrite.getAxon());
+		}
 	}
 
 	@Override

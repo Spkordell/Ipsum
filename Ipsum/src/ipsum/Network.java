@@ -1,7 +1,10 @@
 package ipsum;
 
 import ipsum.exceptions.notEnoughPRMsException;
+import ipsum.gifunctions.GITestFunctionRandom;
+import ipsum.gofunctions.GOPrintFunction;
 import ipsum.interfaces.GIFunction;
+import ipsum.interfaces.GOFunction;
 import ipsum.interfaces.INode;
 
 import java.awt.Dimension;
@@ -19,7 +22,7 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 public class Network implements Runnable {
-	private static final int stepsBetweenSleeps = 100;
+	private static final int stepsBetweenSleeps = 500;
 
 	LinkedList<INode> nodes;
 	
@@ -31,19 +34,23 @@ public class Network implements Runnable {
 		nodes = new LinkedList<INode>();	
 	}
 	
-	public void buildNetwork(int GICount, int PRMCount, int GOCount, GIFunction f) throws notEnoughPRMsException {
+	public void buildNetwork(int GICount, int PRMCount, int GOCount, GIFunction iF) throws notEnoughPRMsException {
+		buildNetwork(GICount, PRMCount, GOCount, iF, null);	
+	}
+	
+	public void buildNetwork(int GICount, int PRMCount, int GOCount, GIFunction iF, GOFunction oF) throws notEnoughPRMsException {
 		if (GOCount > PRMCount) {
 			throw(new notEnoughPRMsException());			
 		}
 		for (int i = 0; i < GICount; i++) {
-			nodes.add(new GI(this,f));
+			nodes.add(new GI(this,iF));
 		}
 		for (int i = 0; i < PRMCount; i++) {
 			nodes.add(new PRM(this));
 		}		
 		for (int i = 0; i < GOCount; i++) {
-			nodes.add(new GO(this));
-		}				
+			nodes.add(new GO(this,oF));
+		}	
 	}
 	
 	public void buildNetwork(List<GIFunction> giFunctions, int PRMCount, int GOCount) throws notEnoughPRMsException {
@@ -57,7 +64,22 @@ public class Network implements Runnable {
 			nodes.add(new PRM(this));
 		}		
 		for (int i = 0; i < GOCount; i++) {
-			nodes.add(new GO(this));
+			nodes.add(new GO(this,null));
+		}	
+	}
+	
+	public void buildNetwork(List<GIFunction> giFunctions, int PRMCount, List<GOFunction> goFunctions) throws notEnoughPRMsException {
+		if (goFunctions.size() > PRMCount) {
+			throw(new notEnoughPRMsException());			
+		}
+		for (GIFunction f: giFunctions) {
+			nodes.add(new GI(this,f));
+		}
+		for (int i = 0; i < PRMCount; i++) {
+			nodes.add(new PRM(this));
+		}		
+		for (GOFunction f: goFunctions) {
+			nodes.add(new GO(this,f));
 		}	
 	}
 	
@@ -175,8 +197,4 @@ public class Network implements Runnable {
 		}
 		return false;
 	}
-
-
-	
-	
 }

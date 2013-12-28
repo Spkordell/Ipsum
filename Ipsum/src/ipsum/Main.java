@@ -13,15 +13,13 @@ import javax.swing.*;
 
 
 /*TODO list
- * 
- * Fix Trimming (use sleeping)
- * 
- * Something is still does not seem right with the way to-be-twins are calculated. White cells should be able to connect. 
+ *  
+ * Something still does not seem right with the way to-be-twins are calculated. White cells should be able to connect more often then they do now. 
  * 
  * train towards a directive
  * Make simulators for testing
  * 
- * Fix exceptions in PRM (uncomment the stack-trace print in the catch to see what I mean)
+ * Fix exceptions in PRM (uncomment the stack-trace print in the catch to see what I mean), same problem occurs in the optimization function
  */
 
 public class Main {
@@ -51,11 +49,11 @@ public class Main {
         
         LinkedList<GIFunction> giFunctions = new LinkedList<GIFunction>();
         giFunctions.add(new GITestFunction1());
-        giFunctions.add(new GITestFunction2());  
+        //giFunctions.add(new GITestFunction2());  
         Network network = new Network();
         try {
-			network.buildNetwork(20,60,1,new GITestFunctionRandom());
-        	//network.buildNetwork(giFunctions,1,0);
+			network.buildNetwork(10,20,1,new GITestFunctionRandom());
+        	//network.buildNetwork(giFunctions,3,0);
 		} catch (notEnoughPRMsException e) {
 			e.printStackTrace();
 			System.exit(1);

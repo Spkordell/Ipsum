@@ -144,6 +144,7 @@ public class Network implements Runnable {
 		}
 	}
 
+	
 	public boolean hasTwin(INode node) {
 		/* 
 		 * A twin is defined as any node in the network with the same configuration of dendrite

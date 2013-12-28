@@ -102,19 +102,6 @@ public class PRM implements INode {
 			System.out.println(removeCount+" frames removed. "+frames.size() + " remaining.");
 		}
 	}
-
-	private void growDendrites() {
-		if (dendrites.size() < 1 || rand.nextFloat() < ((1-correlation)/connectionProbabilityDivider)   ) {
-			INode node = this;
-			int attemptsRemaining = 6;
-			while((node == this || node.isReadyToConnect() == false || this.network.hasTwinIfConnected(this,node) ) && attemptsRemaining-- > 0) {
-				node = this.network.getRandomNode();
-			}
-			if(attemptsRemaining > 0) {
-				connectDendriteTo(node);
-			}
-		}
-	}
 	
 	@Override
 	public void optimize() {
@@ -177,11 +164,6 @@ public class PRM implements INode {
 	public double getAxon() {
 		return this.axon;
 	}
-
-	@Override
-	public boolean isReadyToConnect() {
-		return (frames.size() >= minSteps && dendrites.size() > 1 && rand.nextFloat() < (correlation/connectionProbabilityDivider));
-	}
 	
 	public void connectDendriteTo(INode node) {
 		this.dendrites.add(node);
@@ -235,15 +217,35 @@ public class PRM implements INode {
 		return true;
 	}
 
+	private void growDendrites() {		
+		if (dendrites.size() < 1 || rand.nextFloat() < ((1-correlation)/connectionProbabilityDivider)   ) {
+			INode node = this;
+			int attemptsRemaining = 6;
+			while( (node == this || !node.isReadyToConnect() || dendrites.contains(node) || this.network.hasTwinIfConnected(this,node)) && attemptsRemaining > 0) {
+				node = this.network.getRandomNode();
+				attemptsRemaining--;
+			}
+			if(attemptsRemaining > 0) {
+				connectDendriteTo(node);
+				System.out.println("Connecting "+this+" to "+node);
+			}
+		}
+	}
+	
 	@Override
-	public boolean isTwinIfConnected(INode node, INode toNode) {
-		if (dendrites.size() == 0) {
+	public boolean isReadyToConnect() {
+		return (frames.size() >= minSteps && dendrites.size() > 0 && rand.nextFloat() < (correlation/connectionProbabilityDivider));
+	}
+	
+	@Override
+	public boolean isTwinIfConnected(INode node, INode toNode) {  
+		if (dendrites.size() != node.getDendrites().size()+1) {
 			return false;
 		}
-		@SuppressWarnings("unchecked")
-		LinkedList<INode> temp = (LinkedList<INode>) node.getDendrites().clone();
-		temp.add(toNode);
-		return (dendrites.containsAll(temp));
+		LinkedList<INode> nodesDendrites = new LinkedList<INode>();
+		nodesDendrites.addAll(node.getDendrites());
+		nodesDendrites.add(toNode);
+		return dendrites.containsAll(nodesDendrites);
 	}
 
 	@Override

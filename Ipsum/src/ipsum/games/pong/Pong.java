@@ -31,7 +31,8 @@ public class Pong extends Applet implements Runnable {
 
     public void init() {
 	setBackground(Color.white);
-        Dimension d = winSize = size();
+        @SuppressWarnings("deprecation")
+		Dimension d = winSize = size();
         paddles = new Paddle[2];
     	paddles[0] = new Paddle(10, 40, 120, 50);
     	paddles[1] = new Paddle(d.width/2, d.height-40, d.height-120, 40);
@@ -65,13 +66,15 @@ public class Pong extends Applet implements Runnable {
 			for (int i = 0; i != 3; i++)
 			    step();
 			repaint();
-	    	Thread.currentThread().sleep(pause);
+	    	Thread.currentThread();
+			Thread.sleep(pause);
 		    } catch (Exception e) {}
 		}
     }
 
     public void step() {
-    	paddles[0].setTarget((int)((GOPongFunction.paddle2-GOPongFunction.paddle1)*400));
+    	paddles[0].setTarget((int)(paddles[0].getVarPos()+(GOPongFunction.paddle2-GOPongFunction.paddle1)*400));
+    	GIPongFunction.playerPaddle = paddles[0].getVarPos();
 		paddles[1].setTarget(ball.getPaddlePos());
 		GIPongFunction.enemyPaddle = (double)ball.getPaddlePos()/400;
 		paddles[0].move();
@@ -137,14 +140,16 @@ public class Pong extends Applet implements Runnable {
 		}
     }
 
-    public void stop() {
+    @SuppressWarnings("deprecation")
+	public void stop() {
 		if (engine != null && engine.isAlive()) {
 		    engine.stop();
 		}
 		engine = null;
     }
 
-    public boolean handleEvent(Event evt) {
+    @SuppressWarnings("deprecation")
+	public boolean handleEvent(Event evt) {
 	if (evt.id == Event.MOUSE_MOVE) {
 	    //paddles[0].setTarget(evt.x);
 		//System.out.println(evt.x);

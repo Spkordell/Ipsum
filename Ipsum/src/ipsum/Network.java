@@ -20,7 +20,7 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 public class Network implements Runnable {
-	private static final int stepsBetweenSleeps = 350;
+	private static final int stepsBetweenSleeps = 350;//100; //350
 
 	LinkedList<INode> nodes;
 	

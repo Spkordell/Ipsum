@@ -16,10 +16,10 @@ public class GOPongFunction implements GOFunction {
 	public void goStep(double dendrite) {
 		if (this.type == 1) {
 			paddle1 = dendrite;
+			System.out.println(paddle2-paddle1);
 		} else {
 			paddle2 = dendrite;
 		}
-		System.out.println(dendrite);
 	}
 
 }

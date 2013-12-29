@@ -2,8 +2,6 @@ package ipsum;
 import ipsum.exceptions.notEnoughPRMsException;
 import ipsum.games.pong.Pong;
 import ipsum.gifunctions.GIPongFunction;
-import ipsum.gifunctions.GITestFunction1;
-import ipsum.gifunctions.GITestFunction2;
 import ipsum.gifunctions.GITestFunctionRandom;
 import ipsum.gofunctions.GOPongFunction;
 import ipsum.interfaces.GIFunction;
@@ -20,7 +18,7 @@ import javax.swing.*;
  *   
  *   
  * train towards a directive
- * Make simulators for testing
+ * Add live parameter control panel to allow user to adjust parameters on the fly
  * 
  * Fix exceptions in PRM (uncomment the stack-trace print in the catch to see what I mean), same problem occurs in the optimization function
  */
@@ -52,19 +50,20 @@ public class Main {
         stepCount = 0;
         
         
-        LinkedList<GIFunction> giFunctions = new LinkedList<GIFunction>();
-        giFunctions.add(new GIPongFunction(1));
-        giFunctions.add(new GIPongFunction(2));  
-        giFunctions.add(new GIPongFunction(3));  
-        LinkedList<GOFunction> goFunctions = new LinkedList<GOFunction>();        
-        goFunctions.add(new GOPongFunction(1));
-        goFunctions.add(new GOPongFunction(2));
+        LinkedList<GIFunction> giPongFunctions = new LinkedList<GIFunction>();
+        giPongFunctions.add(new GIPongFunction(1));
+        giPongFunctions.add(new GIPongFunction(2));  
+        giPongFunctions.add(new GIPongFunction(3));
+        giPongFunctions.add(new GIPongFunction(4)); 
+        LinkedList<GOFunction> goPongFunctions = new LinkedList<GOFunction>();        
+        goPongFunctions.add(new GOPongFunction(1));
+        goPongFunctions.add(new GOPongFunction(2));
         
-        GOGIRepeaterFunction gogiRepeaterFunction = new GOGIRepeaterFunction();        
+        //GOGIRepeaterFunction gogiRepeaterFunction = new GOGIRepeaterFunction();        
         Network network = new Network();
         try {
-			//network.buildNetwork(4,100,0,new GITestFunctionRandom());
-        	network.buildNetwork(giFunctions,100,goFunctions);
+			//network.buildNetwork(2,5,1,new GITestFunctionRandom());
+        	network.buildNetwork(giPongFunctions,50,goPongFunctions);
         	//network.buildNetwork(1,0,0,new GITestFunctionRandom());
         	//network.buildNetwork(1,30,1,gogiRepeaterFunction, gogiRepeaterFunction);
 		} catch (notEnoughPRMsException e) {

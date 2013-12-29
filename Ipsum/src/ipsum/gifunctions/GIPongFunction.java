@@ -11,6 +11,7 @@ public class GIPongFunction implements GIFunction {
 	public static double ballx;
 	public static double bally;
 	public static double enemyPaddle;
+	public static double playerPaddle;
 	
 	public GIPongFunction(int type) {
 		this.type = type;
@@ -27,8 +28,10 @@ public class GIPongFunction implements GIFunction {
 			return ballx;
 		} else if(this.type == 2){
 			return bally;
-		} else {
+		} else if (this.type == 3){
 			return enemyPaddle;
+		} else {
+			return playerPaddle;
 		}
 	}
 

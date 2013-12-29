@@ -28,7 +28,7 @@ public class PRM implements INode {
 	private static final int minSteps = 4;
 	private static final int frameCleaningMultiple = 200;
 	private static final float connectionProbabilityDivider = 20;
-	private static final int minPoints = 3;
+	private static final int minPoints = 2;
 	private LinkedList<INode> dendrites;
 	private LinkedList<DataPoint> frames;
 	private double axon;
@@ -77,9 +77,18 @@ public class PRM implements INode {
 							largestCluster = i;
 						}
 					}		
+					//find center of largest cluster (Find the mean of each dimension)
+			        Vec center = DenseVector.zeros(dendrites.size());
+			        for (int d = 0; d < dendrites.size(); d++) { //do for each dimension, currently 2
+				        for (int i = 0; i < cluster.get(largestCluster).size(); i++) {
+				     	   center.set(d, center.get(d)+cluster.get(largestCluster).get(i).getNumericalValues().get(d));
+				        }
+				        center.set(d, center.get(d)/cluster.get(largestCluster).size());
+			        }
 					//set axon and correlation
-					axon = (float)cluster.get(designations[designations.length-1]).size()/frames.size();
+				    axon = 1/frame.pNormDist(2,center);;
 					correlation = (float)cluster.get(largestCluster).size()/frames.size();
+				    //axon = (float)cluster.get(designations[designations.length-1]).size()/frames.size()
 				} catch (RuntimeException e) {						
 					axon = -1;
 					//e.printStackTrace();

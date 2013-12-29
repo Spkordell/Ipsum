@@ -105,7 +105,8 @@ public class MainFrame extends Frame
 	}
 
     // Internal constructor routine.
-    private void build(
+    @SuppressWarnings("deprecation")
+	private void build(
 	Applet applet, String[] args, int width, int height )
 	{
 	++instances;
@@ -204,7 +205,8 @@ public class MainFrame extends Frame
 	}
 
     /// Event handler for the menu bar.
-    public boolean handleEvent( Event evt )
+    @SuppressWarnings("deprecation")
+	public boolean handleEvent( Event evt )
 	{
 	switch ( evt.id )
 	    {

@@ -30,7 +30,7 @@ class Ball extends Bounceable {
 	inPlay = true;
 	dx = 4;
 	dy = 6;
-	// XXX better way to copy?
+	//better way to copy?
 	pos = new Point(startPos.x, startPos.y);
     }
     int randBounce(int d) {
@@ -41,7 +41,7 @@ class Ball extends Bounceable {
 	return ((n % 6)+2) * -dd;
     }
     public boolean bounce(Paddle pd) {
-	int fp = pd.getFixedPos();
+	//int fp = pd.getFixedPos();
 	int vp = pd.getVarPos();
 	int w = pd.getWidth();
 	if (pos.x < vp || pos.x >= vp+w)
